@@ -1,12 +1,12 @@
-import { User } from '../../domain/entities';
-import { UserModel } from '../../domain/models';
-import { IUserRepository } from '../../domain/repositories';
+import { User } from '../../../domain/entities';
+import { UserModel } from '../../../domain/models';
+import { IUserRepository } from '../../../domain/repositories';
 
-import { CreateUserCommand } from '../commands';
-import { ICommandHandler } from './handler';
-import { IUUIDProvider, IHashProvider } from '../providers';
+import { CreateUserCommand } from '../../commands';
+import { ICommandHandler } from '../interfaces';
+import { IUUIDProvider, IHashProvider } from '../../providers';
 
-export class CreateUserHandler implements ICommandHandler {
+export class CreateUserCommandHandler implements ICommandHandler {
   readonly operation: string = 'create-user';
 
   constructor(
