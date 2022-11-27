@@ -1,0 +1,46 @@
+/* eslint-disable max-classes-per-file */
+import { Either, left, right } from '../../../shared';
+
+import { Nationalities, DocumentCreator } from '../../contracts';
+import { AmericanDocumentCreator, BrazilianDocumentCreator } from './helpers';
+
+export class Document {
+  private constructor(
+    private readonly value: string,
+    private readonly nationality: Nationalities = Nationalities.BRAZIL,
+  ) {
+    Object.freeze(this);
+  }
+
+  private static selectDocument(
+    nationality: Nationalities = Nationalities.BRAZIL,
+  ): DocumentCreator {
+    if (nationality === Nationalities.UNITED_STATES_OF_AMERICA) {
+      return new AmericanDocumentCreator();
+    }
+    return new BrazilianDocumentCreator();
+  }
+
+  public get(): string {
+    const document = Document.selectDocument(this.nationality);
+    return document.clean(this.value);
+  }
+
+  public format(): string {
+    const document = Document.selectDocument(this.nationality);
+    return document.format(this.value);
+  }
+
+  public static create(
+    documentNumber: string,
+    nationality: Nationalities = Nationalities.BRAZIL,
+  ): Either<Error, Document> {
+    const document = Document.selectDocument(nationality);
+
+    if (!documentNumber && !document.validate(documentNumber)) {
+      return left(new Error('Invalid Document number error'));
+    }
+
+    return right(new Document(document.clean(documentNumber), nationality));
+  }
+}

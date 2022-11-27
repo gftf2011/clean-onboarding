@@ -1,0 +1,4 @@
+export enum Nationalities {
+  BRAZIL = 'BRAZIL',
+  UNITED_STATES_OF_AMERICA = 'UNITED_STATES_OF_AMERICA',
+}
