@@ -5,13 +5,24 @@ import { UserModel } from '../../../domain/models';
 import { IUserService } from '../interfaces';
 import { ICommandBus, IQueryBus } from '../../bus';
 import { CreateUserCommand } from '../../commands';
-import { FindUserQuery } from '../../queries';
+import { CreateUserSessionQuery, FindUserQuery } from '../../queries';
 
 export class UserService implements IUserService {
   constructor(
     private readonly commandBus: ICommandBus,
     private readonly queryBus: IQueryBus,
   ) {}
+
+  public async createSession(userId: string, secret: string): Promise<string> {
+    const response = await this.queryBus.execute(
+      new CreateUserSessionQuery({
+        id: userId,
+        secret,
+      }),
+    );
+
+    return response;
+  }
 
   public async find(id: string): Promise<UserModel> {
     const response = await this.queryBus.execute(

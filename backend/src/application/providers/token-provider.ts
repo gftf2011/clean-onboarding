@@ -1,7 +1,8 @@
-type TokenPayload = {
-  data: any;
+export type TokenPayload = {
+  payload: any;
+  secret: string;
 };
 
 export interface ITokenProvider {
-  sign: (data: TokenPayload) => Promise<string>;
+  sign: (data: TokenPayload) => string;
 }
