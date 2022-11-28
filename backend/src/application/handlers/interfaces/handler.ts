@@ -1,3 +1,4 @@
+import { IQuery } from '../../queries';
 import { ICommand } from '../../commands';
 
 export interface IHandler {
@@ -12,5 +13,5 @@ export interface ICommandHandler extends IHandler {
 
 export interface IQueryHandler<T = any> extends IHandler {
   readonly operation: string;
-  handle: (action: any) => Promise<T>;
+  handle: (action: IQuery) => Promise<T>;
 }
