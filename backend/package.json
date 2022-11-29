@@ -42,7 +42,7 @@
     "express": "^4.17.3",
     "helmet": "^6.0.0",
     "jsonwebtoken": "^8.5.1",
-    "pg": "^8.7.3",
+    "pg": "^8.8.0",
     "uuid": "^9.0.0"
   },
   "license": "MIT"
