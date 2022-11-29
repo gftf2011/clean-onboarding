@@ -17,6 +17,7 @@
     "@types/jsonwebtoken": "^8.5.9",
     "@types/node": "^18.0.3",
     "@types/pg": "^8.6.5",
+    "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.30.5",
     "@typescript-eslint/parser": "^5.30.5",
     "cpf-cnpj-validator": "^1.0.3",
@@ -41,7 +42,8 @@
     "express": "^4.17.3",
     "helmet": "^6.0.0",
     "jsonwebtoken": "^8.5.1",
-    "pg": "^8.7.3"
+    "pg": "^8.7.3",
+    "uuid": "^9.0.0"
   },
   "license": "MIT"
 }

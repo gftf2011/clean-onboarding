@@ -3,6 +3,7 @@ import { IQuery } from './query';
 export namespace CreateUserSessionQuery {
   export type Data = {
     id: string;
+    email: string;
     secret: string;
   };
 }

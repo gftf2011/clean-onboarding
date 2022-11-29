@@ -13,11 +13,16 @@ export class UserService implements IUserService {
     private readonly queryBus: IQueryBus,
   ) {}
 
-  public async createSession(userId: string, secret: string): Promise<string> {
+  public async createSession(
+    userId: string,
+    userEmail: string,
+    secret: string,
+  ): Promise<string> {
     const response = await this.queryBus.execute(
       new CreateUserSessionQuery({
         id: userId,
         secret,
+        email: userEmail,
       }),
     );
 

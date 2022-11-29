@@ -8,6 +8,7 @@ export class TokenProvider implements ITokenProvider {
   public sign(data: TokenPayload): string {
     return jwt.sign(data.payload, data.secret, {
       expiresIn: this.expiresIn,
+      subject: data.subject,
     });
   }
 }
