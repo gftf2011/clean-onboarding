@@ -13,6 +13,8 @@ export class UserService implements IUserService {
     private readonly queryBus: IQueryBus,
   ) {}
 
+  findByEmail: (email: string) => Promise<UserModel>;
+
   public async createSession(
     userId: string,
     userEmail: string,

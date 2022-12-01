@@ -8,5 +8,6 @@ export interface IUserService {
     secret: string,
   ) => Promise<string>;
   find: (id: string) => Promise<UserModel>;
+  findByEmail: (email: string) => Promise<UserModel>;
   save: (input: UserDTO) => Promise<void>;
 }
