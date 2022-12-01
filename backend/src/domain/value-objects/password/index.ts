@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { Either, left, right } from '../../../shared';
 
+import { InvalidPasswordError } from '../../errors';
 import { PasswordValidationCreator } from '../../contracts';
 import {
   DecryptedPasswordValidationCreator,
@@ -35,7 +36,7 @@ export class Password {
     const validationType = Password.selectValidation(encrypted);
 
     if (!password && !validationType.validate(password)) {
-      return left(new Error('Invalid Password error'));
+      return left(new InvalidPasswordError());
     }
 
     return right(new Password(password, encrypted));
