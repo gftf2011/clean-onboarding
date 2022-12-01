@@ -1,3 +1,4 @@
+export * from './domain-error';
 export * from './invalid-document-number-error';
 export * from './invalid-email-error';
 export * from './invalid-id-error';

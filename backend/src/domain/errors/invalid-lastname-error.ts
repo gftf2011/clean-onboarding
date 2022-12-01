@@ -1,4 +1,6 @@
-export class InvalidLastnameError extends Error {
+import { DomainError } from './domain-error';
+
+export class InvalidLastnameError extends DomainError {
   constructor(value: string) {
     super();
     this.message = `lastname "${value || ''}" is not valid`;
