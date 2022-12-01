@@ -2,6 +2,7 @@
 import { IQuery } from '../../../application/contracts/queries';
 import { IQueryHandler } from '../../../application/contracts/handlers';
 import { IQueryBus } from '../../../application/contracts/bus';
+import { QueryNotRegisteredError } from '../../../application/errors';
 
 export class QueryBus implements IQueryBus {
   private mapQueries: Map<string, IQuery>;
@@ -32,11 +33,8 @@ export class QueryBus implements IQueryBus {
     const actionFound = this.mapQueries.get(action.operation);
     const handler = this.mapHandlers.get(action.operation);
 
-    if (!actionFound) {
-      throw new Error('Query not registered');
-    }
-    if (!handler) {
-      throw new Error('Handler do not exist for query');
+    if (!actionFound || !handler) {
+      throw new QueryNotRegisteredError(action);
     }
 
     await handler.handle(actionFound);
