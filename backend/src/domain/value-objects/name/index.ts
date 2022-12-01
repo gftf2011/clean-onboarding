@@ -1,3 +1,5 @@
+import { InvalidNameError } from '../../errors';
+
 import { Either, left, right } from '../../../shared';
 
 export class Name {
@@ -18,7 +20,7 @@ export class Name {
 
   public static create(name: string): Either<Error, Name> {
     if (!name && !this.validate(name.toLocaleLowerCase().trim())) {
-      return left(new Error('Invalid name error'));
+      return left(new InvalidNameError(name));
     }
     return right(new Name(name.toLocaleLowerCase().trim()));
   }
