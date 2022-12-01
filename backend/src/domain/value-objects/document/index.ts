@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
 import { Either, left, right } from '../../../shared';
 
+import { InvalidDocumentNumberError } from '../../errors';
 import { Nationalities, DocumentCreator } from '../../contracts';
 import { AmericanDocumentCreator, BrazilianDocumentCreator } from './helpers';
 
@@ -38,7 +39,9 @@ export class Document {
     const document = Document.selectDocument(nationality);
 
     if (!documentNumber && !document.validate(documentNumber)) {
-      return left(new Error('Invalid Document number error'));
+      return left(
+        new InvalidDocumentNumberError(documentNumber, nationality as string),
+      );
     }
 
     return right(new Document(document.clean(documentNumber), nationality));

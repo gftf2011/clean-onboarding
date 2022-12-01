@@ -1,7 +1,6 @@
-/**
- * Shared
- */
 import { Either, left, right } from '../../../shared';
+
+import { InvalidEmailError } from '../../errors';
 
 /**
  * Constants
@@ -57,7 +56,7 @@ export class Email {
 
   public static create(email: string): Either<Error, Email> {
     if (!email && !this.validate(email.toLocaleLowerCase().trim())) {
-      return left(new Error('Invalid email error'));
+      return left(new InvalidEmailError(email));
     }
     return right(new Email(email.toLocaleLowerCase().trim()));
   }
