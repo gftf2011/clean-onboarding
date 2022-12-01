@@ -1,5 +1,6 @@
 import { Either, left, right } from '../../../shared';
 
+import { InvalidIdError } from '../../errors';
 import { Nationalities } from '../../contracts';
 import {
   Email,
@@ -41,8 +42,8 @@ export class User {
     private readonly props: Props,
   ) {
     this.value = {
-      id,
-      ...props,
+      id: this.id,
+      ...this.props,
     };
   }
 
@@ -67,7 +68,7 @@ export class User {
     if (
       !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id)
     ) {
-      return left(new Error('Invalid ID error'));
+      return left(new InvalidIdError(id));
     }
 
     if (nameOrError.isLeft()) {
