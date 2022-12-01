@@ -2,7 +2,7 @@ import { UserModel } from '../../../domain/models';
 import { IUserRepository } from '../../../domain/repositories';
 
 import { FindUserQuery } from '../../queries';
-import { IQueryHandler } from '../interfaces';
+import { IQueryHandler } from '../../contracts/handlers';
 
 export class FindUserQueryHandler implements IQueryHandler<UserModel> {
   readonly operation: string = 'find-user';

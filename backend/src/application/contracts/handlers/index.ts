@@ -1,5 +1,5 @@
-import { IQuery } from '../../queries';
-import { ICommand } from '../../commands';
+import { IQuery } from '../queries';
+import { ICommand } from '../commands';
 
 export interface IHandler {
   readonly operation: string;

@@ -1,6 +1,6 @@
 import { Nationalities } from '../../domain/contracts';
 
-import { ICommand } from './command';
+import { ICommand } from '../contracts/commands';
 
 export namespace CreateUserCommand {
   export type Data = {

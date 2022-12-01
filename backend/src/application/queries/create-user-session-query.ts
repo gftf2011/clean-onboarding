@@ -1,4 +1,4 @@
-import { IQuery } from './query';
+import { IQuery } from '../contracts/queries';
 
 export namespace CreateUserSessionQuery {
   export type Data = {

@@ -3,8 +3,8 @@ import { UserModel } from '../../../domain/models';
 import { IUserRepository } from '../../../domain/repositories';
 
 import { CreateUserCommand } from '../../commands';
-import { ICommandHandler } from '../interfaces';
-import { IUUIDProvider, IHashProvider } from '../../providers';
+import { ICommandHandler } from '../../contracts/handlers';
+import { IUUIDProvider, IHashProvider } from '../../contracts/providers';
 
 export class CreateUserCommandHandler implements ICommandHandler {
   readonly operation: string = 'create-user';

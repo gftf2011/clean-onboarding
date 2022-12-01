@@ -1,6 +1,10 @@
 import { CreateUserSessionQuery } from '../../queries';
-import { IQueryHandler } from '../interfaces';
-import { ITokenProvider, IUUIDProvider, NAMESPACES } from '../../providers';
+import { IQueryHandler } from '../../contracts/handlers';
+import {
+  ITokenProvider,
+  IUUIDProvider,
+  NAMESPACES,
+} from '../../contracts/providers';
 
 export class CreateUserSessionQueryHandler implements IQueryHandler<string> {
   readonly operation: string = 'create-session';

@@ -1,11 +1,11 @@
-import { Nationalities } from '../../../domain/contracts';
-import { UserDTO } from '../../../domain/dtos';
-import { UserModel } from '../../../domain/models';
+import { Nationalities } from '../../domain/contracts';
+import { UserDTO } from '../../domain/dtos';
+import { UserModel } from '../../domain/models';
 
-import { IUserService } from '../interfaces';
-import { ICommandBus, IQueryBus } from '../../bus';
-import { CreateUserCommand } from '../../commands';
-import { CreateUserSessionQuery, FindUserQuery } from '../../queries';
+import { IUserService } from '../contracts/services';
+import { ICommandBus, IQueryBus } from '../contracts/bus';
+import { CreateUserCommand } from '../commands';
+import { CreateUserSessionQuery, FindUserQuery } from '../queries';
 
 export class UserService implements IUserService {
   constructor(

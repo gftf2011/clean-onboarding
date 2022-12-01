@@ -2,7 +2,7 @@ import { Pool, PoolClient } from 'pg';
 
 import { PostgresPoolConfig } from '../config';
 
-import { Connection } from '../../../../application/adapters/database';
+import { Connection } from '../../../../application/contracts/database';
 
 export class PostgresConnection implements Connection {
   private static pool: Pool;

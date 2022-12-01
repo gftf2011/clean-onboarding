@@ -1,25 +1,44 @@
-import { ICommand } from '../../../application/commands';
-import { ICommandHandler } from '../../../application/handlers/interfaces';
-
-import { ICommandBus } from '../../../application/bus';
+/* eslint-disable no-restricted-syntax */
+import { ICommand } from '../../../application/contracts/commands';
+import { ICommandHandler } from '../../../application/contracts/handlers';
+import { ICommandBus } from '../../../application/contracts/bus';
 
 export class CommandBus implements ICommandBus {
-  private mappedHandlers: Map<string, ICommandHandler>;
+  private mapCommands: Map<string, ICommand>;
 
-  constructor(private readonly commandHandlers: ICommandHandler[]) {
-    // eslint-disable-next-line no-restricted-syntax
+  private mapHandlers: Map<string, ICommandHandler>;
+
+  constructor(
+    private readonly commandHandlers: ICommandHandler[],
+    private readonly commands: ICommand[],
+  ) {
+    this.registerCommands();
+    this.registerHandlers();
+  }
+
+  private registerCommands(): void {
+    for (const command of this.commands) {
+      this.mapCommands.set(command.operation, command);
+    }
+  }
+
+  private registerHandlers(): void {
     for (const handler of this.commandHandlers) {
-      this.mappedHandlers.set(handler.operation, handler);
+      this.mapHandlers.set(handler.operation, handler);
     }
   }
 
   public async execute(command: ICommand): Promise<void> {
-    const handler = this.mappedHandlers.get(command.operation);
+    const commandFound = this.mapCommands.get(command.operation);
+    const handler = this.mapHandlers.get(command.operation);
 
+    if (!commandFound) {
+      throw new Error('Command not registered');
+    }
     if (!handler) {
       throw new Error('Handler do not exist for command');
     }
 
-    await handler.handle(command);
+    await handler.handle(commandFound);
   }
 }

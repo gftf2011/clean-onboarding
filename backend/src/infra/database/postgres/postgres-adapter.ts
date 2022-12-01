@@ -5,7 +5,7 @@ import {
   IDatabase,
   IDatabaseQuery,
   IDatabaseStatement,
-} from '../../../application/adapters/database';
+} from '../../../application/contracts/database';
 
 import { PostgresConnection } from './connection';
 
