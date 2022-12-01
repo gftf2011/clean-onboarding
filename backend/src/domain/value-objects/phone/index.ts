@@ -1,6 +1,6 @@
-/* eslint-disable max-classes-per-file */
 import { Either, left, right } from '../../../shared';
 
+import { InvalidPhoneError } from '../../errors';
 import { Nationalities, PhoneCreator } from '../../contracts';
 import { AmericanPhoneCreator, BrazilianPhoneCreator } from './helpers';
 
@@ -43,7 +43,7 @@ export class Phone {
     const phone = Phone.selectPhone(nationality);
 
     if (!phoneNumber && !phone.validate(phoneNumber)) {
-      return left(new Error('Invalid Phone number error'));
+      return left(new InvalidPhoneError(phoneNumber, nationality as string));
     }
 
     return right(new Phone(phone.clean(phoneNumber), nationality));

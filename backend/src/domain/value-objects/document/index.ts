@@ -1,4 +1,3 @@
-/* eslint-disable max-classes-per-file */
 import { Either, left, right } from '../../../shared';
 
 import { InvalidDocumentNumberError } from '../../errors';
