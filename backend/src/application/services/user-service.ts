@@ -5,7 +5,11 @@ import { UserModel } from '../../domain/models';
 import { IUserService } from '../contracts/services';
 import { ICommandBus, IQueryBus } from '../contracts/bus';
 import { CreateUserCommand } from '../commands';
-import { CreateUserSessionQuery, FindUserQuery } from '../queries';
+import {
+  CreateUserSessionQuery,
+  FindUserByEmailQuery,
+  FindUserQuery,
+} from '../queries';
 
 export class UserService implements IUserService {
   constructor(
@@ -13,7 +17,15 @@ export class UserService implements IUserService {
     private readonly queryBus: IQueryBus,
   ) {}
 
-  findByEmail: (email: string) => Promise<UserModel>;
+  public async findByEmail(email: string): Promise<UserModel> {
+    const response = await this.queryBus.execute(
+      new FindUserByEmailQuery({
+        email,
+      }),
+    );
+
+    return response as UserModel;
+  }
 
   public async createSession(
     userId: string,
