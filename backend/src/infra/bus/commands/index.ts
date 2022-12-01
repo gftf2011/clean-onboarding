@@ -2,6 +2,7 @@
 import { ICommand } from '../../../application/contracts/commands';
 import { ICommandHandler } from '../../../application/contracts/handlers';
 import { ICommandBus } from '../../../application/contracts/bus';
+import { CommandNotRegisteredError } from '../../../application/errors';
 
 export class CommandBus implements ICommandBus {
   private mapCommands: Map<string, ICommand>;
@@ -32,11 +33,8 @@ export class CommandBus implements ICommandBus {
     const commandFound = this.mapCommands.get(command.operation);
     const handler = this.mapHandlers.get(command.operation);
 
-    if (!commandFound) {
-      throw new Error('Command not registered');
-    }
-    if (!handler) {
-      throw new Error('Handler do not exist for command');
+    if (!commandFound || !handler) {
+      throw new CommandNotRegisteredError(command);
     }
 
     await handler.handle(commandFound);
