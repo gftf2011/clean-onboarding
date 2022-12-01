@@ -1,3 +1,5 @@
+import { InvalidLastnameError } from '../../errors';
+
 import { Either, left, right } from '../../../shared';
 
 export class Lastname {
@@ -18,7 +20,7 @@ export class Lastname {
 
   public static create(lastname: string): Either<Error, Lastname> {
     if (!lastname && !this.validate(lastname.toLocaleLowerCase().trim())) {
-      return left(new Error('Invalid lastname error'));
+      return left(new InvalidLastnameError(lastname));
     }
     return right(new Lastname(lastname.toLocaleLowerCase().trim()));
   }
