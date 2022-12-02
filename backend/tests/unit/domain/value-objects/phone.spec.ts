@@ -27,5 +27,13 @@ describe('Phone Number', () => {
         new InvalidPhoneError('', Nationalities.BRAZIL as string),
       );
     });
+
+    it('should return "InvalidPhoneError" if phone number do not have 11 characters', () => {
+      const response = Phone.create('0000000000', Nationalities.BRAZIL);
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(
+        new InvalidPhoneError('0000000000', Nationalities.BRAZIL as string),
+      );
+    });
   });
 });
