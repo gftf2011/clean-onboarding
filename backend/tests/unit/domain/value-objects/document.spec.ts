@@ -177,5 +177,33 @@ describe('Document Number', () => {
         ),
       );
     });
+
+    it('should return "InvalidDocumentNumberError" if document number first group matches "000"', () => {
+      const response = Document.create(
+        '000000000',
+        Nationalities.UNITED_STATES_OF_AMERICA,
+      );
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(
+        new InvalidDocumentNumberError(
+          '000000000',
+          Nationalities.UNITED_STATES_OF_AMERICA as string,
+        ),
+      );
+    });
+
+    it('should return "InvalidDocumentNumberError" if document number first group matches "666" - THE NUMBER OF THE BEAST', () => {
+      const response = Document.create(
+        '666000000',
+        Nationalities.UNITED_STATES_OF_AMERICA,
+      );
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(
+        new InvalidDocumentNumberError(
+          '666000000',
+          Nationalities.UNITED_STATES_OF_AMERICA as string,
+        ),
+      );
+    });
   });
 });
