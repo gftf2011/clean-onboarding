@@ -6,6 +6,7 @@ import { IUserService } from '../contracts/services';
 import { ICommandBus, IQueryBus } from '../contracts/bus';
 import { CreateUserCommand } from '../commands';
 import {
+  CheckUserPasswordQuery,
   CreateUserSessionQuery,
   FindUserByEmailQuery,
   FindUserQuery,
@@ -16,6 +17,24 @@ export class UserService implements IUserService {
     private readonly commandBus: ICommandBus,
     private readonly queryBus: IQueryBus,
   ) {}
+
+  public async checkPassword(
+    email: string,
+    document: string,
+    hashedPassword: string,
+    password: string,
+  ): Promise<boolean> {
+    const response = await this.queryBus.execute(
+      new CheckUserPasswordQuery({
+        email,
+        document,
+        hashedPassword,
+        password,
+      }),
+    );
+
+    return response;
+  }
 
   public async findByEmail(email: string): Promise<UserModel> {
     const response = await this.queryBus.execute(

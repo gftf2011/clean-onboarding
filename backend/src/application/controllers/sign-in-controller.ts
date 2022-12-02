@@ -32,6 +32,9 @@ export class SignInController extends HttpController {
   ): Promise<HttpResponse> {
     const userExists = await this.userServices.findByEmail(request.body.email);
     if (!userExists) throw new UserDoNotExistsError();
+
+    // TODO: validate user password
+
     const session = await this.userServices.createSession(
       userExists.id,
       userExists.email,

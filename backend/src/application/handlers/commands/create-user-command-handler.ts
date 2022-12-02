@@ -39,7 +39,7 @@ export class CreateUserCommandHandler implements ICommandHandler {
     }
 
     const hashedPassword = await this.hash.encode(
-      userOrError.value.get().document.get(),
+      userOrError.value.get().password.get(),
       `${userOrError.value.get().email.get()}$${userOrError.value
         .get()
         .document.get()}`,
