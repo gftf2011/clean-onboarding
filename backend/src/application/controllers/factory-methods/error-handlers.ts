@@ -3,9 +3,10 @@ import {
   ApplicationError,
   CommandNotRegisteredError,
   QueryNotRegisteredError,
+  UserAlreadyExistsError,
 } from '../../errors';
 import { HttpResponse } from '../../contracts/http';
-import { badRequest, serverError, unknown } from '../utils';
+import { badRequest, serverError, unauthorized, unknown } from '../utils';
 
 import {
   DomainError,
@@ -46,6 +47,9 @@ class ApplicationErrorHandlerProduct implements ErrorHandlerProduct {
       error instanceof QueryNotRegisteredError
     ) {
       return serverError(error);
+    }
+    if (error instanceof UserAlreadyExistsError) {
+      return unauthorized(error);
     }
     return unknown(error);
   }
