@@ -7,14 +7,12 @@ import { AmericanPhoneCreator, BrazilianPhoneCreator } from './helpers';
 export class Phone {
   private constructor(
     private readonly value: string,
-    private readonly nationality: Nationalities = Nationalities.BRAZIL,
+    private readonly nationality: Nationalities,
   ) {
     Object.freeze(this);
   }
 
-  private static selectPhone(
-    nationality: Nationalities = Nationalities.BRAZIL,
-  ): PhoneCreator {
+  private static selectPhone(nationality: Nationalities): PhoneCreator {
     if (nationality === Nationalities.UNITED_STATES_OF_AMERICA) {
       return new AmericanPhoneCreator();
     }
@@ -38,11 +36,11 @@ export class Phone {
 
   public static create(
     phoneNumber: string,
-    nationality: Nationalities = Nationalities.BRAZIL,
+    nationality: Nationalities,
   ): Either<Error, Phone> {
     const phone = Phone.selectPhone(nationality);
 
-    if (!phoneNumber && !phone.validate(phoneNumber)) {
+    if (!phoneNumber || !phone.validate(phone.clean(phoneNumber))) {
       return left(new InvalidPhoneError(phoneNumber, nationality as string));
     }
 

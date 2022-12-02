@@ -5,7 +5,7 @@ export class BrazilianPhone implements IPhone {
   private readonly DDI: string = '+55';
 
   public clean(phoneNumber: string): string {
-    return phoneNumber.replace(/\D/g, '');
+    return phoneNumber.replace(/[()\-\s]/g, '');
   }
 
   public format(phoneNumber: string): string {
