@@ -40,6 +40,9 @@ export class Phone {
   ): Either<Error, Phone> {
     const phone = Phone.selectPhone(nationality);
 
+    /**
+     * phoneNumber is expected to not have the DDI
+     */
     if (!phoneNumber || !phone.validate(phone.clean(phoneNumber))) {
       return left(new InvalidPhoneError(phoneNumber, nationality as string));
     }
