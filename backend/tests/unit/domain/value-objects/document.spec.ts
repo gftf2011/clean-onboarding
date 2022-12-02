@@ -235,5 +235,49 @@ describe('Document Number', () => {
         ),
       );
     });
+
+    it('should return "InvalidDocumentNumberError" if document number third group matches "0000"', () => {
+      const response = Document.create(
+        `800010000`,
+        Nationalities.UNITED_STATES_OF_AMERICA,
+      );
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(
+        new InvalidDocumentNumberError(
+          `800010000`,
+          Nationalities.UNITED_STATES_OF_AMERICA as string,
+        ),
+      );
+    });
+
+    it('should return valid "Document" with valid parameter', () => {
+      const ssn = new RandomSSN().value();
+
+      const response = Document.create(
+        ssn.toString(),
+        Nationalities.UNITED_STATES_OF_AMERICA,
+      );
+
+      const document = response.value as Document;
+
+      expect(response.isRight()).toBeTruthy();
+      expect(document.get()).toBe(ssn.toString());
+      expect(document.format()).toBe(ssn.toFormattedString());
+    });
+
+    it('should return valid "Document" with valid parameter', () => {
+      const ssn = new RandomSSN().value();
+
+      const response = Document.create(
+        ssn.toFormattedString(),
+        Nationalities.UNITED_STATES_OF_AMERICA,
+      );
+
+      const document = response.value as Document;
+
+      expect(response.isRight()).toBeTruthy();
+      expect(document.get()).toBe(ssn.toString());
+      expect(document.format()).toBe(ssn.toFormattedString());
+    });
   });
 });
