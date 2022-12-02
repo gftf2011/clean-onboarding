@@ -15,7 +15,7 @@ export class BrazilianPhone implements IPhone {
   public formatWithDDI(phoneNumber: string): string {
     const phoneWithDDI = `${this.DDI}${phoneNumber}`;
     return phoneWithDDI.replace(
-      /^(+\d{2})(\d{2})(9\d{4})(\d{4})$/g,
+      /^(\+\d{2})(\d{2})(9\d{4})(\d{4})$/g,
       '$1 $2 $3-$4',
     );
   }

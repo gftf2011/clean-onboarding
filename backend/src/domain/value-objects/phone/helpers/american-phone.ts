@@ -15,7 +15,7 @@ export class AmericanPhone implements IPhone {
   public formatWithDDI(phoneNumber: string): string {
     const phoneWithDDI = `${this.DDI}${phoneNumber}`;
     return phoneWithDDI.replace(
-      /^(+\d{1})(\d{3})(\d{3})(\d{4})$/g,
+      /^(\+\d{1})(\d{3})(\d{3})(\d{4})$/g,
       '$1 $2 $3-$4',
     );
   }

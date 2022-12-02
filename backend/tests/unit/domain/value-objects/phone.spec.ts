@@ -51,5 +51,23 @@ describe('Phone Number', () => {
         new InvalidPhoneError('0090000000a', Nationalities.BRAZIL as string),
       );
     });
+
+    it('should return valid "Phone" with valid parameter', () => {
+      const phoneNumber = '00900000000';
+      const response = Phone.create(phoneNumber, Nationalities.BRAZIL);
+      const phone = response.value as Phone;
+
+      expect(response.isRight()).toBeTruthy();
+      expect(phone.get()).toBe(phoneNumber);
+      expect(phone.format()).toBe(
+        phoneNumber.replace(/^(\d{2})(9\d{4})(\d{4})$/g, '$1 $2-$3'),
+      );
+      expect(phone.formatWithDDI()).toBe(
+        `+55${phoneNumber}`.replace(
+          /^(\+\d{2})(\d{2})(9\d{4})(\d{4})$/g,
+          '$1 $2 $3-$4',
+        ),
+      );
+    });
   });
 });
