@@ -7,7 +7,9 @@ import { HttpController } from './template-methods';
 import { noContent } from './utils';
 
 export namespace SignUpController {
+  export type Url = any;
   export type Body = UserDTO;
+  export type Header = any;
 }
 
 export class SignUpController extends HttpController {
@@ -26,7 +28,11 @@ export class SignUpController extends HttpController {
   }
 
   public async perform(
-    request: HttpRequest<any, UserDTO, any>,
+    request: HttpRequest<
+      SignUpController.Url,
+      SignUpController.Body,
+      SignUpController.Header
+    >,
   ): Promise<HttpResponse> {
     const userExists = await this.userServices.findByEmail(request.body.email);
     if (userExists) throw new UserAlreadyExistsError();

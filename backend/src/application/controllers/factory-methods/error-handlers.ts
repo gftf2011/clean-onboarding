@@ -6,7 +6,13 @@ import {
   UserAlreadyExistsError,
 } from '../../errors';
 import { HttpResponse } from '../../contracts/http';
-import { badRequest, serverError, unauthorized, unknown } from '../utils';
+import {
+  badRequest,
+  forbidden,
+  serverError,
+  unauthorized,
+  unknown,
+} from '../utils';
 
 import {
   DomainError,
@@ -49,7 +55,7 @@ class ApplicationErrorHandlerProduct implements ErrorHandlerProduct {
       return serverError(error);
     }
     if (error instanceof UserAlreadyExistsError) {
-      return unauthorized(error);
+      return forbidden(error);
     }
     return unknown(error);
   }
