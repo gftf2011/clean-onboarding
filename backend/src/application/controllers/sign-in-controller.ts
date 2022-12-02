@@ -31,15 +31,24 @@ export class SignInController extends HttpController {
     >,
   ): Promise<HttpResponse> {
     const userExists = await this.userServices.findByEmail(request.body.email);
+
     if (!userExists) throw new UserDoNotExistsError();
 
-    // TODO: validate user password
+    const validPassword = this.userServices.checkPassword(
+      userExists.email,
+      userExists.document,
+      userExists.password,
+      request.body.password,
+    );
+
+    if (!validPassword) throw new Error('password does not match');
 
     const session = await this.userServices.createSession(
       userExists.id,
       userExists.email,
       this.secret,
     );
+
     return ok({
       auth: `Bearer ${session}`,
     });
