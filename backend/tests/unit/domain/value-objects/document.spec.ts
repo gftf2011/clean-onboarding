@@ -163,5 +163,19 @@ describe('Document Number', () => {
         ),
       );
     });
+
+    it('should return "InvalidDocumentNumberError" if document number has letters', () => {
+      const response = Document.create(
+        '00000000a',
+        Nationalities.UNITED_STATES_OF_AMERICA,
+      );
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(
+        new InvalidDocumentNumberError(
+          '00000000a',
+          Nationalities.UNITED_STATES_OF_AMERICA as string,
+        ),
+      );
+    });
   });
 });
