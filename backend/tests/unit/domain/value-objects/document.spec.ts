@@ -207,8 +207,8 @@ describe('Document Number', () => {
       );
     });
 
-    it('should return "InvalidDocumentNumberError" if document number first group is greater than 900 and less than 999', () => {
-      const firstGroupNumber = faker.datatype.number({ min: 901, max: 999 });
+    it('should return "InvalidDocumentNumberError" if document number first group is greater than or equal 900 and less than or equal 999', () => {
+      const firstGroupNumber = faker.datatype.number({ min: 900, max: 999 });
       const response = Document.create(
         `${firstGroupNumber}000000`,
         Nationalities.UNITED_STATES_OF_AMERICA,
@@ -217,6 +217,20 @@ describe('Document Number', () => {
       expect(response.value).toEqual(
         new InvalidDocumentNumberError(
           `${firstGroupNumber}000000`,
+          Nationalities.UNITED_STATES_OF_AMERICA as string,
+        ),
+      );
+    });
+
+    it('should return "InvalidDocumentNumberError" if document number second group matches "00"', () => {
+      const response = Document.create(
+        `800000000`,
+        Nationalities.UNITED_STATES_OF_AMERICA,
+      );
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(
+        new InvalidDocumentNumberError(
+          `800000000`,
           Nationalities.UNITED_STATES_OF_AMERICA as string,
         ),
       );

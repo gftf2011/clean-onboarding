@@ -20,7 +20,7 @@ export class AmericanDocument implements IDocument {
     if (
       value === '000' ||
       value === '666' ||
-      (Number(value) > 900 && Number(value) < 999)
+      (Number(value) >= 900 && Number(value) <= 999)
     ) {
       return false;
     }
