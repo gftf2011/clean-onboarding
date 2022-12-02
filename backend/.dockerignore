@@ -1,0 +1,12 @@
+env/
+dist/
+coverage/
+node_modules/
+.editorconfig
+.eslintignore
+.eslintrc.json
+.prettierignore
+.prettierrc.json
+.env
+jest.config.js
+README.md
