@@ -10,7 +10,7 @@ export class BrazilianDocument implements IDocument {
   }
 
   public clean(documentNumber: string): string {
-    return documentNumber.replace(/\D/g, '');
+    return documentNumber.replace(/[-\\.]/g, '');
   }
 
   private static isDocumentFirstDigitValid(documentNumber: string): boolean {

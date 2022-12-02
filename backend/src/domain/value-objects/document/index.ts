@@ -7,14 +7,12 @@ import { AmericanDocumentCreator, BrazilianDocumentCreator } from './helpers';
 export class Document {
   private constructor(
     private readonly value: string,
-    private readonly nationality: Nationalities = Nationalities.BRAZIL,
+    private readonly nationality: Nationalities,
   ) {
     Object.freeze(this);
   }
 
-  private static selectDocument(
-    nationality: Nationalities = Nationalities.BRAZIL,
-  ): DocumentCreator {
+  private static selectDocument(nationality: Nationalities): DocumentCreator {
     if (nationality === Nationalities.UNITED_STATES_OF_AMERICA) {
       return new AmericanDocumentCreator();
     }
@@ -33,11 +31,11 @@ export class Document {
 
   public static create(
     documentNumber: string,
-    nationality: Nationalities = Nationalities.BRAZIL,
+    nationality: Nationalities,
   ): Either<Error, Document> {
     const document = Document.selectDocument(nationality);
 
-    if (!documentNumber || !document.validate(documentNumber)) {
+    if (!documentNumber || !document.validate(document.clean(documentNumber))) {
       return left(
         new InvalidDocumentNumberError(documentNumber, nationality as string),
       );

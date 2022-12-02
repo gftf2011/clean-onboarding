@@ -7,7 +7,7 @@ export class AmericanDocument implements IDocument {
   }
 
   public clean(documentNumber: string): string {
-    return documentNumber.replace(/\D/g, '');
+    return documentNumber.replace(/[-]/g, '');
   }
 
   private static isDocumentFirstGroupValid(documentNumber: string): boolean {
