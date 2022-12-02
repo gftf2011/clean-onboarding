@@ -58,14 +58,59 @@ describe('Phone Number', () => {
       const phone = response.value as Phone;
 
       expect(response.isRight()).toBeTruthy();
-      expect(phone.get()).toBe(phoneNumber);
-      expect(phone.format()).toBe(
-        phoneNumber.replace(/^(\d{2})(9\d{4})(\d{4})$/g, '$1 $2-$3'),
+      expect(phone.get()).toBe('00900000000');
+      expect(phone.format()).toBe('00 90000-0000');
+      expect(phone.formatWithDDI()).toBe('+55 00 90000-0000');
+    });
+
+    it('should return valid "Phone" with formatted parameter', () => {
+      const phoneNumber = '(00) 90000-0000';
+      const response = Phone.create(phoneNumber, Nationalities.BRAZIL);
+      const phone = response.value as Phone;
+
+      expect(response.isRight()).toBeTruthy();
+      expect(phone.get()).toBe('00900000000');
+      expect(phone.format()).toBe('00 90000-0000');
+      expect(phone.formatWithDDI()).toBe('+55 00 90000-0000');
+    });
+  });
+
+  describe('American phone number', () => {
+    it('should return "InvalidPhoneError" if phone number is "null"', () => {
+      const response = Phone.create(
+        null as any,
+        Nationalities.UNITED_STATES_OF_AMERICA,
       );
-      expect(phone.formatWithDDI()).toBe(
-        `+55${phoneNumber}`.replace(
-          /^(\+\d{2})(\d{2})(9\d{4})(\d{4})$/g,
-          '$1 $2 $3-$4',
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(
+        new InvalidPhoneError(
+          null as any,
+          Nationalities.UNITED_STATES_OF_AMERICA as string,
+        ),
+      );
+    });
+
+    it('should return "InvalidPhoneError" if phone number is "undefined"', () => {
+      const response = Phone.create(
+        undefined as any,
+        Nationalities.UNITED_STATES_OF_AMERICA,
+      );
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(
+        new InvalidPhoneError(
+          undefined as any,
+          Nationalities.UNITED_STATES_OF_AMERICA as string,
+        ),
+      );
+    });
+
+    it('should return "InvalidPhoneError" if phone number is empty string', () => {
+      const response = Phone.create('', Nationalities.UNITED_STATES_OF_AMERICA);
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(
+        new InvalidPhoneError(
+          '',
+          Nationalities.UNITED_STATES_OF_AMERICA as string,
         ),
       );
     });

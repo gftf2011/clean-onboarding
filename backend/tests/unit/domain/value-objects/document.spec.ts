@@ -97,7 +97,7 @@ describe('Document Number', () => {
       );
     });
 
-    it('should return valid "Document" with valid formatted number', () => {
+    it('should return valid "Document" with valid formatted parameter', () => {
       const documentNumber = cpf.generate(true);
       const response = Document.create(documentNumber, Nationalities.BRAZIL);
       const document = response.value as Document;
