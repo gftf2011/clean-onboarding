@@ -114,5 +114,19 @@ describe('Phone Number', () => {
         ),
       );
     });
+
+    it('should return "InvalidPhoneError" if phone number do not have 10 characters', () => {
+      const response = Phone.create(
+        '000000000',
+        Nationalities.UNITED_STATES_OF_AMERICA,
+      );
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(
+        new InvalidPhoneError(
+          '000000000',
+          Nationalities.UNITED_STATES_OF_AMERICA as string,
+        ),
+      );
+    });
   });
 });
