@@ -2,6 +2,7 @@ import { UserDTO } from '../../domain/dtos';
 
 import { HttpRequest, HttpResponse } from '../contracts/http';
 import { IUserService } from '../contracts/services';
+import { UserAlreadyExistsError } from '../errors';
 import { HttpController } from './template-methods';
 import { noContent } from './utils';
 
@@ -28,7 +29,7 @@ export class SignUpController extends HttpController {
     request: HttpRequest<any, UserDTO, any>,
   ): Promise<HttpResponse> {
     const userExists = await this.userServices.findByEmail(request.body.email);
-    if (userExists) throw new Error('user already exists');
+    if (userExists) throw new UserAlreadyExistsError();
     await this.userServices.save(request.body);
     return noContent();
   }
