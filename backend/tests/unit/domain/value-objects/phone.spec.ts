@@ -152,5 +152,33 @@ describe('Phone Number', () => {
         ),
       );
     });
+
+    it('should return valid "Phone" with valid parameter', () => {
+      const phoneNumber = '0000000000';
+      const response = Phone.create(
+        phoneNumber,
+        Nationalities.UNITED_STATES_OF_AMERICA,
+      );
+      const phone = response.value as Phone;
+
+      expect(response.isRight()).toBeTruthy();
+      expect(phone.get()).toBe('0000000000');
+      expect(phone.format()).toBe('000 000-0000');
+      expect(phone.formatWithDDI()).toBe('+1 000 000-0000');
+    });
+
+    it('should return valid "Phone" with formatted parameter', () => {
+      const phoneNumber = '(000) 000-0000';
+      const response = Phone.create(
+        phoneNumber,
+        Nationalities.UNITED_STATES_OF_AMERICA,
+      );
+      const phone = response.value as Phone;
+
+      expect(response.isRight()).toBeTruthy();
+      expect(phone.get()).toBe('0000000000');
+      expect(phone.format()).toBe('000 000-0000');
+      expect(phone.formatWithDDI()).toBe('+1 000 000-0000');
+    });
   });
 });
