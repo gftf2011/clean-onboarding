@@ -2,8 +2,10 @@
 import {
   ApplicationError,
   CommandNotRegisteredError,
+  PasswordDoesNotMatchError,
   QueryNotRegisteredError,
   UserAlreadyExistsError,
+  UserDoNotExistsError,
 } from '../../errors';
 import { HttpResponse } from '../../contracts/http';
 import {
@@ -54,7 +56,13 @@ class ApplicationErrorHandlerProduct implements ErrorHandlerProduct {
     ) {
       return serverError(error);
     }
-    if (error instanceof UserAlreadyExistsError) {
+    if (error instanceof UserDoNotExistsError) {
+      return unauthorized(error);
+    }
+    if (
+      error instanceof UserAlreadyExistsError ||
+      error instanceof PasswordDoesNotMatchError
+    ) {
       return forbidden(error);
     }
     return unknown(error);

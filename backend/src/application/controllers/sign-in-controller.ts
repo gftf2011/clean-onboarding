@@ -1,6 +1,6 @@
 import { HttpRequest, HttpResponse } from '../contracts/http';
 import { IUserService } from '../contracts/services';
-import { UserDoNotExistsError } from '../errors';
+import { PasswordDoesNotMatchError, UserDoNotExistsError } from '../errors';
 import { HttpController } from './template-methods';
 import { ok } from './utils';
 
@@ -41,7 +41,7 @@ export class SignInController extends HttpController {
       request.body.password,
     );
 
-    if (!validPassword) throw new Error('password does not match');
+    if (!validPassword) throw new PasswordDoesNotMatchError();
 
     const session = await this.userServices.createSession(
       userExists.id,
