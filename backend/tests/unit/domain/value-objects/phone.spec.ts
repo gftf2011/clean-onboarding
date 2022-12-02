@@ -29,18 +29,16 @@ describe('Phone Number', () => {
     });
 
     it('should return "InvalidPhoneError" if phone number do not have 11 characters', () => {
-      const response = Phone.create('0000000000', Nationalities.BRAZIL);
+      let response = Phone.create('0000000000', Nationalities.BRAZIL);
       expect(response.isLeft()).toBeTruthy();
       expect(response.value).toEqual(
         new InvalidPhoneError('0000000000', Nationalities.BRAZIL as string),
       );
-    });
 
-    it('should return "InvalidPhoneError" if phone number do not have 11 characters', () => {
-      const response = Phone.create('0000000000', Nationalities.BRAZIL);
+      response = Phone.create('000000000000', Nationalities.BRAZIL);
       expect(response.isLeft()).toBeTruthy();
       expect(response.value).toEqual(
-        new InvalidPhoneError('0000000000', Nationalities.BRAZIL as string),
+        new InvalidPhoneError('000000000000', Nationalities.BRAZIL as string),
       );
     });
 
@@ -116,7 +114,7 @@ describe('Phone Number', () => {
     });
 
     it('should return "InvalidPhoneError" if phone number do not have 10 characters', () => {
-      const response = Phone.create(
+      let response = Phone.create(
         '000000000',
         Nationalities.UNITED_STATES_OF_AMERICA,
       );
@@ -124,6 +122,32 @@ describe('Phone Number', () => {
       expect(response.value).toEqual(
         new InvalidPhoneError(
           '000000000',
+          Nationalities.UNITED_STATES_OF_AMERICA as string,
+        ),
+      );
+
+      response = Phone.create(
+        '00000000000',
+        Nationalities.UNITED_STATES_OF_AMERICA,
+      );
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(
+        new InvalidPhoneError(
+          '00000000000',
+          Nationalities.UNITED_STATES_OF_AMERICA as string,
+        ),
+      );
+    });
+
+    it('should return "InvalidPhoneError" if phone number has any letter', () => {
+      const response = Phone.create(
+        '000000000a',
+        Nationalities.UNITED_STATES_OF_AMERICA,
+      );
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(
+        new InvalidPhoneError(
+          '000000000a',
           Nationalities.UNITED_STATES_OF_AMERICA as string,
         ),
       );
