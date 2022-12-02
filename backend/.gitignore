@@ -105,3 +105,12 @@ dist
 
 # Package Lock
 package-lock.json
+
+# Docker Compose
+docker-compose.yml
+!docker/dev/docker-compose.yml
+!docker/test/docker-compose.yml
+
+# env folder
+!env/dev/.env
+!env/test/.env
