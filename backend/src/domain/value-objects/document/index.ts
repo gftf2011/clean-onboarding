@@ -37,7 +37,7 @@ export class Document {
   ): Either<Error, Document> {
     const document = Document.selectDocument(nationality);
 
-    if (!documentNumber && !document.validate(documentNumber)) {
+    if (!documentNumber || !document.validate(documentNumber)) {
       return left(
         new InvalidDocumentNumberError(documentNumber, nationality as string),
       );
