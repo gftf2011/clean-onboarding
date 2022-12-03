@@ -19,7 +19,7 @@ export class Lastname {
   }
 
   public static create(lastname: string): Either<Error, Lastname> {
-    if (!lastname && !this.validate(lastname.toLocaleLowerCase().trim())) {
+    if (!lastname || !this.validate(lastname.toLocaleLowerCase().trim())) {
       return left(new InvalidLastnameError(lastname));
     }
     return right(new Lastname(lastname.toLocaleLowerCase().trim()));
