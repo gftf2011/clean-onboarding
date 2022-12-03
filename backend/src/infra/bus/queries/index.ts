@@ -5,22 +5,10 @@ import { IQueryBus } from '../../../application/contracts/bus';
 import { QueryNotRegisteredError } from '../../../application/errors';
 
 export class QueryBus implements IQueryBus {
-  private mapQueries: Map<string, IQuery>;
-
   private mapHandlers: Map<string, IQueryHandler>;
 
-  constructor(
-    private readonly queryHandlers: IQueryHandler[],
-    private readonly queries: IQuery[],
-  ) {
+  constructor(private readonly queryHandlers: IQueryHandler[]) {
     this.registerHandlers();
-    this.registerQueries();
-  }
-
-  private registerQueries(): void {
-    for (const query of this.queries) {
-      this.mapQueries.set(query.operation, query);
-    }
   }
 
   private registerHandlers(): void {
@@ -30,13 +18,12 @@ export class QueryBus implements IQueryBus {
   }
 
   public async execute(action: IQuery): Promise<void> {
-    const actionFound = this.mapQueries.get(action.operation);
     const handler = this.mapHandlers.get(action.operation);
 
-    if (!actionFound || !handler) {
+    if (!handler) {
       throw new QueryNotRegisteredError(action);
     }
 
-    await handler.handle(actionFound);
+    await handler.handle(action);
   }
 }
