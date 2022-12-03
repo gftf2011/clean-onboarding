@@ -27,4 +27,60 @@ describe('Email', () => {
     expect(response.isLeft()).toBeTruthy();
     expect(response.value).toEqual(new InvalidEmailError(email));
   });
+
+  it('should return "InvalidEmailError" if email has invalid pattern', () => {
+    let email = 'test.@mail.com';
+    let response = Email.create(email);
+
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidEmailError(email));
+
+    email = 't..est@mail.com';
+    response = Email.create(email);
+
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidEmailError(email));
+
+    email = '@mail.com';
+    response = Email.create(email);
+
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidEmailError(email));
+
+    email = 'test@';
+    response = Email.create(email);
+
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidEmailError(email));
+
+    email = 'test@mail';
+    response = Email.create(email);
+
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidEmailError(email));
+
+    email = 'test@mail..com';
+    response = Email.create(email);
+
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidEmailError(email));
+
+    email = 'test@.mail.com';
+    response = Email.create(email);
+
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidEmailError(email));
+
+    email = '.test@mail.com';
+    response = Email.create(email);
+
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidEmailError(email));
+
+    email = 'test@mail.com.';
+    response = Email.create(email);
+
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidEmailError(email));
+  });
 });
