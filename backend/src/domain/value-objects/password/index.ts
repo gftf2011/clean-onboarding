@@ -34,7 +34,7 @@ export class Password {
   ): Either<Error, Password> {
     const validationType = Password.selectValidation(encrypted);
 
-    if (!password && !validationType.validate(password)) {
+    if (!password || !validationType.validate(password)) {
       return left(new InvalidPasswordError());
     }
 
