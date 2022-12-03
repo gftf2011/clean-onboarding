@@ -1,3 +1,5 @@
+import faker from 'faker';
+
 import { Email } from '../../../../src/domain/value-objects';
 
 import { InvalidEmailError } from '../../../../src/domain/errors';
@@ -106,5 +108,17 @@ describe('Email', () => {
 
     expect(response.isLeft()).toBeTruthy();
     expect(response.value).toEqual(new InvalidEmailError(email));
+  });
+
+  it('should return "Email" with valid parameter', () => {
+    const value = faker.internet.email().toLowerCase();
+    const response = Email.create(value);
+
+    const email = response.value as Email;
+
+    expect(response.isRight()).toBeTruthy();
+    expect(email.get()).toBe(value);
+    expect(email.account()).toBe(value.split('@')[0]);
+    expect(email.address()).toBe(value.split('@')[1]);
   });
 });
