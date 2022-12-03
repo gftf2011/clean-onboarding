@@ -8,10 +8,7 @@ import {
 } from './helpers';
 
 export class Password {
-  private constructor(
-    private readonly value: string,
-    private readonly encrypted: boolean = false,
-  ) {
+  private constructor(private readonly value: string) {
     Object.freeze(this);
   }
 
@@ -20,7 +17,7 @@ export class Password {
   }
 
   private static selectValidation(
-    encrypted = false,
+    encrypted: boolean,
   ): PasswordValidationCreator {
     if (encrypted) {
       return new EncryptedPasswordValidationCreator();
@@ -30,7 +27,7 @@ export class Password {
 
   public static create(
     password: string,
-    encrypted = false,
+    encrypted: boolean,
   ): Either<Error, Password> {
     const validationType = Password.selectValidation(encrypted);
 
@@ -38,6 +35,6 @@ export class Password {
       return left(new InvalidPasswordError());
     }
 
-    return right(new Password(password, encrypted));
+    return right(new Password(password));
   }
 }
