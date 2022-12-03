@@ -55,7 +55,7 @@ export class Email {
   }
 
   public static create(email: string): Either<Error, Email> {
-    if (!email && !this.validate(email.toLocaleLowerCase().trim())) {
+    if (!email || !this.validate(email.toLocaleLowerCase().trim())) {
       return left(new InvalidEmailError(email));
     }
     return right(new Email(email.toLocaleLowerCase().trim()));
