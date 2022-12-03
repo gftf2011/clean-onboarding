@@ -20,4 +20,11 @@ describe('Email', () => {
     expect(response.isLeft()).toBeTruthy();
     expect(response.value).toEqual(new InvalidEmailError(''));
   });
+
+  it('should return "InvalidEmailError" if email has more than 320 characters', () => {
+    const email = 'a'.repeat(321);
+    const response = Email.create(email);
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidEmailError(email));
+  });
 });
