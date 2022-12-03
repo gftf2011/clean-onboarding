@@ -38,5 +38,11 @@ describe('Password', () => {
       expect(response.isLeft()).toBeTruthy();
       expect(response.value).toEqual(new InvalidPasswordError());
     });
+
+    it('should return "InvalidPasswordError" if password has less than 8 numeric values', () => {
+      const response = Password.create('1234567aaaa', false);
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(new InvalidPasswordError());
+    });
   });
 });
