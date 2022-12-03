@@ -2,8 +2,10 @@
 import {
   ApplicationError,
   CommandNotRegisteredError,
+  DatabaseError,
   PasswordDoesNotMatchError,
   QueryNotRegisteredError,
+  ServiceUnavailableError,
   UserAlreadyExistsError,
   UserDoNotExistsError,
 } from '../../errors';
@@ -12,6 +14,7 @@ import {
   badRequest,
   forbidden,
   serverError,
+  serviceUnavailableError,
   unauthorized,
   unknown,
 } from '../utils';
@@ -50,7 +53,11 @@ class DomainErrorHandlerProduct implements ErrorHandlerProduct {
 
 class ApplicationErrorHandlerProduct implements ErrorHandlerProduct {
   public operation(error: ApplicationError): HttpResponse {
+    if (error instanceof ServiceUnavailableError) {
+      return serviceUnavailableError(error);
+    }
     if (
+      error instanceof DatabaseError ||
       error instanceof CommandNotRegisteredError ||
       error instanceof QueryNotRegisteredError
     ) {
