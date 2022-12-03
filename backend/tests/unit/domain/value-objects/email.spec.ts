@@ -83,4 +83,12 @@ describe('Email', () => {
     expect(response.isLeft()).toBeTruthy();
     expect(response.value).toEqual(new InvalidEmailError(email));
   });
+
+  it('should return "InvalidEmailError" if email domain has more than 255 characters', () => {
+    const email = `${'a'.repeat(63)}@${'d'.repeat(127)}.${'d'.repeat(128)}`;
+    const response = Email.create(email);
+
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidEmailError(email));
+  });
 });
