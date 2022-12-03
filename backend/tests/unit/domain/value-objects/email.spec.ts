@@ -8,4 +8,10 @@ describe('Email', () => {
     expect(response.isLeft()).toBeTruthy();
     expect(response.value).toEqual(new InvalidEmailError(null as any));
   });
+
+  it('should return "InvalidEmailError" if email is "undefined"', () => {
+    const response = Email.create(undefined as any);
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidEmailError(undefined as any));
+  });
 });
