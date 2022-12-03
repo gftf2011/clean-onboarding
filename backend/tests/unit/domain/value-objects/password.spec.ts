@@ -20,5 +20,11 @@ describe('Password', () => {
       expect(response.isLeft()).toBeTruthy();
       expect(response.value).toEqual(new InvalidPasswordError());
     });
+
+    it('should return "InvalidPasswordError" if password has less than 11 characters', () => {
+      const response = Password.create('aaaaaaaaaa', false);
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(new InvalidPasswordError());
+    });
   });
 });
