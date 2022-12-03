@@ -35,8 +35,7 @@ export class FindUserByEmailQueryHandler implements IQueryHandler<UserModel> {
       );
 
       if (userOrError.isLeft()) {
-        // TODO: create more semantic error
-        throw new Error('inconsistent data');
+        throw userOrError.value;
       }
     }
 
