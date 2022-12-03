@@ -32,5 +32,11 @@ describe('Password', () => {
       expect(response.isLeft()).toBeTruthy();
       expect(response.value).toEqual(new InvalidPasswordError());
     });
+
+    it('should return "InvalidPasswordError" if password has any empty space', () => {
+      const response = Password.create('aaaaaa aaaa', false);
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(new InvalidPasswordError());
+    });
   });
 });
