@@ -16,7 +16,7 @@ services:
       - 3333:3333
 
   postgres:
-    build: ./docker/dev/images/postgresql
+    build: ./docker/dev/images/postgres
     container_name: postgres-dev
     environment:
       POSTGRES_USER: "postgres"

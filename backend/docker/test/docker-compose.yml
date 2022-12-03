@@ -2,7 +2,7 @@ version: '3.7'
 
 services:
   postgres:
-    build: ./docker/test/images/postgresql
+    build: ./docker/test/images/postgres
     container_name: postgres-test
     environment:
       POSTGRES_USER: "postgres"
