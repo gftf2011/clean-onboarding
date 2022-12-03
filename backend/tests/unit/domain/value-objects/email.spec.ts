@@ -121,4 +121,16 @@ describe('Email', () => {
     expect(email.account()).toBe(value.split('@')[0]);
     expect(email.address()).toBe(value.split('@')[1]);
   });
+
+  it('should return "Email" with valid uppercase parameter', () => {
+    const value = 'TES.T@MAIL.COM';
+    const response = Email.create(value);
+
+    const email = response.value as Email;
+
+    expect(response.isRight()).toBeTruthy();
+    expect(email.get()).toBe('tes.t@mail.com');
+    expect(email.account()).toBe('tes.t');
+    expect(email.address()).toBe('mail.com');
+  });
 });
