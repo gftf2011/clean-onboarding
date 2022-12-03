@@ -14,4 +14,10 @@ describe('Email', () => {
     expect(response.isLeft()).toBeTruthy();
     expect(response.value).toEqual(new InvalidEmailError(undefined as any));
   });
+
+  it('should return "InvalidEmailError" if email is empty string', () => {
+    const response = Email.create('');
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidEmailError(''));
+  });
 });
