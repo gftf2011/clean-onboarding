@@ -5,6 +5,7 @@ import faker from 'faker';
 import { User } from '../../../../src/domain/entities';
 import { Nationalities } from '../../../../src/domain/contracts';
 import {
+  InvalidDocumentNumberError,
   InvalidIdError,
   InvalidLastnameError,
   InvalidNameError,
@@ -69,5 +70,30 @@ describe('User Entity', () => {
     );
     expect(response.isLeft()).toBeTruthy();
     expect(response.value).toEqual(new InvalidLastnameError(''));
+  });
+
+  it('should return "InvalidLastnameError" if lastname is invalid', () => {
+    const response = User.create(
+      '00000000-0000-0000-0000-000000000000',
+      {
+        document: '',
+        email: faker.internet.email().toLowerCase(),
+        lastname: 'test',
+        name: 'test',
+        password: '12345678aB?',
+        phone: '0000000000',
+      },
+      {
+        encrypted: false,
+        nationality: Nationalities.UNITED_STATES_OF_AMERICA,
+      },
+    );
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(
+      new InvalidDocumentNumberError(
+        '',
+        Nationalities.UNITED_STATES_OF_AMERICA,
+      ),
+    );
   });
 });
