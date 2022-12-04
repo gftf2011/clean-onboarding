@@ -6,6 +6,7 @@ import { User } from '../../../../src/domain/entities';
 import { Nationalities } from '../../../../src/domain/contracts';
 import {
   InvalidIdError,
+  InvalidLastnameError,
   InvalidNameError,
 } from '../../../../src/domain/errors';
 
@@ -48,5 +49,25 @@ describe('User Entity', () => {
     );
     expect(response.isLeft()).toBeTruthy();
     expect(response.value).toEqual(new InvalidNameError(''));
+  });
+
+  it('should return "InvalidLastnameError" if lastname is invalid', () => {
+    const response = User.create(
+      '00000000-0000-0000-0000-000000000000',
+      {
+        document: new RandomSSN().value().toString(),
+        email: faker.internet.email().toLowerCase(),
+        lastname: '',
+        name: 'test',
+        password: '12345678aB?',
+        phone: '0000000000',
+      },
+      {
+        encrypted: false,
+        nationality: Nationalities.UNITED_STATES_OF_AMERICA,
+      },
+    );
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidLastnameError(''));
   });
 });
