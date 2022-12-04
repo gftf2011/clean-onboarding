@@ -11,6 +11,7 @@ import {
   InvalidLastnameError,
   InvalidNameError,
   InvalidPasswordError,
+  InvalidPhoneError,
 } from '../../../../src/domain/errors';
 
 describe('User Entity', () => {
@@ -137,5 +138,27 @@ describe('User Entity', () => {
     );
     expect(response.isLeft()).toBeTruthy();
     expect(response.value).toEqual(new InvalidPasswordError());
+  });
+
+  it('should return "InvalidPhoneError" if phone is invalid', () => {
+    const response = User.create(
+      '00000000-0000-0000-0000-000000000000',
+      {
+        document: new RandomSSN().value().toString(),
+        email: faker.internet.email().toLowerCase(),
+        lastname: 'test',
+        name: 'test',
+        password: '12345678aB?',
+        phone: '',
+      },
+      {
+        encrypted: false,
+        nationality: Nationalities.UNITED_STATES_OF_AMERICA,
+      },
+    );
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(
+      new InvalidPhoneError('', Nationalities.UNITED_STATES_OF_AMERICA),
+    );
   });
 });
