@@ -6,7 +6,7 @@ import {
 
 export class DecryptedPasswordValidation implements PasswordValidation {
   private static countOnlyNumbers(password: string): number {
-    return password.replace(/(\d*)/g, '').length;
+    return password.replace(/(\D)/g, '').length;
   }
 
   private static countOnlyUpperCaseLetters(password: string): number {
