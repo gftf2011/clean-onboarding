@@ -1,6 +1,5 @@
 import { Either, left, right } from '../../../shared';
 
-import { InvalidIdError } from '../../errors';
 import { Nationalities } from '../../contracts';
 import {
   Email,
@@ -9,6 +8,7 @@ import {
   Password,
   Document,
   Phone,
+  ID,
 } from '../../value-objects';
 
 interface Props {
@@ -58,6 +58,7 @@ export class User {
   ): Either<Error, User> {
     const { email, lastname, name, password, document, phone } = user;
 
+    const idOrError = ID.create(id);
     const nameOrError = Name.create(name);
     const lastnameOrError = Lastname.create(lastname);
     const documentOrError = Document.create(document, options.nationality);
@@ -65,10 +66,8 @@ export class User {
     const passwordOrError = Password.create(password, options.encrypted);
     const phoneOrError = Phone.create(phone, options.nationality);
 
-    if (
-      !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(id)
-    ) {
-      return left(new InvalidIdError(id));
+    if (idOrError.isLeft()) {
+      return left(idOrError.value);
     }
 
     if (nameOrError.isLeft()) {
@@ -96,7 +95,7 @@ export class User {
     }
 
     return right(
-      new User(id, {
+      new User(idOrError.value.get(), {
         email: emailOrError.value,
         lastname: lastnameOrError.value,
         name: nameOrError.value,
