@@ -97,5 +97,14 @@ describe('Password', () => {
       expect(response.isLeft()).toBeTruthy();
       expect(response.value).toEqual(new InvalidPasswordError());
     });
+
+    it('should return valid "Password" with valid parameter', () => {
+      const value = 'a'.repeat(25);
+      const response = Password.create(value, true);
+      const password = response.value as Password;
+
+      expect(response.isRight()).toBeTruthy();
+      expect(password.get()).toBe(value);
+    });
   });
 });
