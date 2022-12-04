@@ -1,3 +1,4 @@
+import { PasswordRestrictionService } from '../../services';
 import { Either, left, right } from '../../../shared';
 
 import { Nationalities } from '../../contracts';
@@ -10,6 +11,7 @@ import {
   Phone,
   ID,
 } from '../../value-objects';
+import { InvalidPasswordError } from '../../errors';
 
 interface Props {
   name: Name;
@@ -92,6 +94,16 @@ export class User {
 
     if (phoneOrError.isLeft()) {
       return left(phoneOrError.value);
+    }
+
+    const passwordMatchesPhone =
+      new PasswordRestrictionService().phoneMatchesPassword(
+        passwordOrError.value,
+        phoneOrError.value,
+      );
+
+    if (passwordMatchesPhone) {
+      return left(new InvalidPasswordError());
     }
 
     return right(

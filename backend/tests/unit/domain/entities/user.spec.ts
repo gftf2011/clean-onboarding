@@ -162,6 +162,27 @@ describe('User Entity', () => {
     );
   });
 
+  it('should return "InvalidPasswordError" if password matches phone number', () => {
+    const phone = faker.phone.phoneNumber('0000000000');
+    const response = User.create(
+      '00000000-0000-0000-0000-000000000000',
+      {
+        document: new RandomSSN().value().toString(),
+        email: faker.internet.email().toLowerCase(),
+        lastname: 'test',
+        name: 'test',
+        password: `${phone}aB?`,
+        phone,
+      },
+      {
+        encrypted: false,
+        nationality: Nationalities.UNITED_STATES_OF_AMERICA,
+      },
+    );
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidPasswordError());
+  });
+
   it('should return "User" with valid parameters', () => {
     const document = new RandomSSN().value().toString();
     const email = faker.internet.email().toLowerCase();
