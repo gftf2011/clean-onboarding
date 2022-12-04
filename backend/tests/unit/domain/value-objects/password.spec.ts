@@ -91,5 +91,11 @@ describe('Password', () => {
       expect(response.isLeft()).toBeTruthy();
       expect(response.value).toEqual(new InvalidPasswordError());
     });
+
+    it('should return "InvalidPasswordError" if password has less than 25 characters', () => {
+      const response = Password.create('a'.repeat(24), true);
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(new InvalidPasswordError());
+    });
   });
 });

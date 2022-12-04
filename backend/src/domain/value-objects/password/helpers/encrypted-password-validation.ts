@@ -6,7 +6,7 @@ import {
 
 export class EncryptedPasswordValidation implements PasswordValidation {
   public validate(password: string): boolean {
-    if (password.length < 24) {
+    if (password.length <= 24) {
       return false;
     }
 
