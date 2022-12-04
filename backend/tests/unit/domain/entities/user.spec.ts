@@ -161,4 +161,36 @@ describe('User Entity', () => {
       new InvalidPhoneError('', Nationalities.UNITED_STATES_OF_AMERICA),
     );
   });
+
+  it('should return "User" with valid parameters', () => {
+    const document = new RandomSSN().value().toString();
+    const email = faker.internet.email().toLowerCase();
+
+    const response = User.create(
+      '00000000-0000-0000-0000-000000000000',
+      {
+        document,
+        email,
+        lastname: 'test',
+        name: 'test',
+        password: '12345678aB?',
+        phone: '0000000000',
+      },
+      {
+        encrypted: false,
+        nationality: Nationalities.UNITED_STATES_OF_AMERICA,
+      },
+    );
+
+    const user = response.value as User;
+
+    expect(response.isRight()).toBeTruthy();
+    expect(user.get().id).toBe('00000000-0000-0000-0000-000000000000');
+    expect(user.get().document.get()).toBe(document);
+    expect(user.get().email.get()).toBe(email);
+    expect(user.get().lastname.get()).toBe('test');
+    expect(user.get().name.get()).toBe('test');
+    expect(user.get().password.get()).toBe('12345678aB?');
+    expect(user.get().phone.get()).toBe('0000000000');
+  });
 });
