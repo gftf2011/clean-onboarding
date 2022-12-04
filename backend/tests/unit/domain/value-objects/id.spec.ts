@@ -25,9 +25,9 @@ describe('ID', () => {
     const value = '00000000-0000-0000-0000-000000000000';
     const response = ID.create(value);
 
-    const lastname = response.value as ID;
+    const id = response.value as ID;
 
     expect(response.isRight()).toBeTruthy();
-    expect(lastname.get()).toBe(value);
+    expect(id.get()).toBe(value);
   });
 });
