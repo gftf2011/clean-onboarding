@@ -72,4 +72,24 @@ describe('Password', () => {
       expect(password.get()).toBe(value);
     });
   });
+
+  describe('Encrypted Password', () => {
+    it('should return "InvalidPasswordError" if password is "null"', () => {
+      const response = Password.create(null as any, true);
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(new InvalidPasswordError());
+    });
+
+    it('should return "InvalidPasswordError" if password is "undefined"', () => {
+      const response = Password.create(undefined as any, true);
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(new InvalidPasswordError());
+    });
+
+    it('should return "InvalidPasswordError" if password is empty string', () => {
+      const response = Password.create('', true);
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(new InvalidPasswordError());
+    });
+  });
 });
