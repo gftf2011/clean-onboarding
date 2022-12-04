@@ -20,4 +20,14 @@ describe('ID', () => {
     expect(response.isLeft()).toBeTruthy();
     expect(response.value).toEqual(new InvalidIdError(''));
   });
+
+  it('should return "ID" with valid parameter', () => {
+    const value = '00000000-0000-0000-0000-000000000000';
+    const response = ID.create(value);
+
+    const lastname = response.value as ID;
+
+    expect(response.isRight()).toBeTruthy();
+    expect(lastname.get()).toBe(value);
+  });
 });
