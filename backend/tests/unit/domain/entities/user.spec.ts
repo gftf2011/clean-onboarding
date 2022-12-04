@@ -6,6 +6,7 @@ import { User } from '../../../../src/domain/entities';
 import { Nationalities } from '../../../../src/domain/contracts';
 import {
   InvalidDocumentNumberError,
+  InvalidEmailError,
   InvalidIdError,
   InvalidLastnameError,
   InvalidNameError,
@@ -72,7 +73,7 @@ describe('User Entity', () => {
     expect(response.value).toEqual(new InvalidLastnameError(''));
   });
 
-  it('should return "InvalidLastnameError" if lastname is invalid', () => {
+  it('should return "InvalidDocumentNumberError" if document is invalid', () => {
     const response = User.create(
       '00000000-0000-0000-0000-000000000000',
       {
@@ -95,5 +96,25 @@ describe('User Entity', () => {
         Nationalities.UNITED_STATES_OF_AMERICA,
       ),
     );
+  });
+
+  it('should return "InvalidEmailError" if email is invalid', () => {
+    const response = User.create(
+      '00000000-0000-0000-0000-000000000000',
+      {
+        document: new RandomSSN().value().toString(),
+        email: '',
+        lastname: 'test',
+        name: 'test',
+        password: '12345678aB?',
+        phone: '0000000000',
+      },
+      {
+        encrypted: false,
+        nationality: Nationalities.UNITED_STATES_OF_AMERICA,
+      },
+    );
+    expect(response.isLeft()).toBeTruthy();
+    expect(response.value).toEqual(new InvalidEmailError(''));
   });
 });
