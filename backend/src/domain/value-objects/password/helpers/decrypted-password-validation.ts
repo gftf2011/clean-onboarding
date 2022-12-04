@@ -18,7 +18,7 @@ export class DecryptedPasswordValidation implements PasswordValidation {
   }
 
   private static countOnlySpecialCharacters(password: string): number {
-    return password.replace(/([\^!@#$%&?]*)/g, '').length;
+    return password.replace(/([^\\^!@#$%&?]*)/g, '').length;
   }
 
   private static hasEmptySpace(password: string): boolean {

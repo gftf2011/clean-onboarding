@@ -56,5 +56,11 @@ describe('Password', () => {
       expect(response.isLeft()).toBeTruthy();
       expect(response.value).toEqual(new InvalidPasswordError());
     });
+
+    it('should return "InvalidPasswordError" if password has less than 1 special character - (^!@#$%&?)', () => {
+      const response = Password.create('12345678aaA', false);
+      expect(response.isLeft()).toBeTruthy();
+      expect(response.value).toEqual(new InvalidPasswordError());
+    });
   });
 });
