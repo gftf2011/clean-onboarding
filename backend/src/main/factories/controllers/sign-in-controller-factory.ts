@@ -8,13 +8,13 @@ import { PostgresAdapter } from '../../../infra/database/postgres/postgres-adapt
 import { commandBusFactory, queryBusFactory } from '../bus';
 
 export const signInControllerFactory = (): Controller => {
-  const queryBus = queryBusFactory();
-  const commandBus = commandBusFactory();
-  const postgresDB = new PostgresAdapter();
+  const postgres = new PostgresAdapter();
+  const queryBus = queryBusFactory(postgres);
+  const commandBus = commandBusFactory(postgres);
   const userService = new UserService(commandBus, queryBus);
   const controller = new TransactionController(
     new SignInController(userService, process.env.JWT_SECRET),
-    postgresDB,
+    postgres,
   );
   return controller;
 };

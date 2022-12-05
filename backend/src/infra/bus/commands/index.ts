@@ -12,6 +12,7 @@ export class CommandBus implements ICommandBus {
   }
 
   private registerHandlers(): void {
+    this.mapHandlers = new Map<string, ICommandHandler>();
     for (const handler of this.commandHandlers) {
       this.mapHandlers.set(handler.operation, handler);
     }

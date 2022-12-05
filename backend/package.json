@@ -2,7 +2,7 @@
   "name": "backend",
   "version": "1.0.0",
   "description": "",
-  "main": "src/main/server/index.ts",
+  "main": "src/main/server/index.js",
   "scripts": {
     "docker:up": "docker-compose up -d --remove-orphans",
     "docker:down": "docker-compose down",
@@ -23,6 +23,7 @@
     "build": "rm -rf dist && tsc -p tsconfig.json",
     "start": "node dist/main/server/index.js",
     "start:dev": "npm run build && npm run start",
+    "prestart:docker:dev:up": "npm run build:dev",
     "start:docker:dev:up": "npm run run:docker:dev",
     "pretest": "npm run build:test && npm run run:docker:test",
     "test": "jest --clearCache ; jest --colors --coverage --verbose --detectOpenHandles --config jest.config.js",
@@ -40,6 +41,7 @@
     "@types/jsonwebtoken": "^8.5.9",
     "@types/node": "^18.0.3",
     "@types/pg": "^8.6.5",
+    "@types/supertest": "^2.0.12",
     "@types/uuid": "^8.3.4",
     "@typescript-eslint/eslint-plugin": "^5.30.5",
     "@typescript-eslint/parser": "^5.30.5",
@@ -56,6 +58,7 @@
     "jest": "~27.5.1",
     "prettier": "^2.7.1",
     "ssn": "^1.0.3",
+    "supertest": "^6.3.2",
     "ts-jest": "~27.1.4",
     "typescript": "^4.6.2"
   },

@@ -17,8 +17,12 @@ export class ExpressRouteAdapter {
       const httpResponse = await controller.handle(httpRequest);
       if (httpResponse.statusCode === 204) {
         res.status(httpResponse.statusCode).end();
+      } else {
+        /**
+         * Necessary use of else to avoid server possible double response
+         */
+        res.status(httpResponse.statusCode).json(httpResponse.body);
       }
-      res.status(httpResponse.statusCode).json(httpResponse.body);
     };
   }
 }

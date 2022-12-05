@@ -12,6 +12,7 @@ export class QueryBus implements IQueryBus {
   }
 
   private registerHandlers(): void {
+    this.mapHandlers = new Map<string, IQueryHandler>();
     for (const handler of this.queryHandlers) {
       this.mapHandlers.set(handler.operation, handler);
     }

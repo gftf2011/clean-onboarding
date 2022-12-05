@@ -1,6 +1,7 @@
 import { IQueryBus } from '../../../application/contracts/bus';
 
 import { QueryBus } from '../../../infra/bus/queries';
+import { PostgresAdapter } from '../../../infra/database/postgres/postgres-adapter';
 
 import {
   checkUserPasswordQueryHandlerFactory,
@@ -9,12 +10,12 @@ import {
   findUserQueryHandlerFactory,
 } from '../handlers';
 
-export const queryBusFactory = (): IQueryBus => {
+export const queryBusFactory = (postgres: PostgresAdapter): IQueryBus => {
   const handlers = [
     checkUserPasswordQueryHandlerFactory(),
     createUserSessionQueryHandlerFactory(),
-    findUserByEmailQueryHandlerFactory(),
-    findUserQueryHandlerFactory(),
+    findUserByEmailQueryHandlerFactory(postgres),
+    findUserQueryHandlerFactory(postgres),
   ];
   const bus = new QueryBus(handlers);
   return bus;

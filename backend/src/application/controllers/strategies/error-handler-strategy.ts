@@ -46,8 +46,7 @@ export class ErrorHandlerInvoker {
   private selectStrategy(error: Error): void {
     if (error instanceof DomainError) {
       this.context.setStrategy(new DomainErrorHandlerStrategy());
-    }
-    if (error instanceof ApplicationError) {
+    } else {
       this.context.setStrategy(new ApplicationErrorHandlerStrategy());
     }
   }

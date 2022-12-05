@@ -25,7 +25,7 @@ enum CircuitBreakerState {
  * - It uses the {@link https://refactoring.guru/design-patterns/proxy Proxy} design pattern
  * - It uses the {@link https://microservices.io/patterns/reliability/circuit-breaker.html Circuit Breaker} architecture pattern
  */
-export class CircuitBreakerQuery implements IDatabaseQuery {
+export class DatabaseQueryCircuitBreaker implements IDatabaseQuery {
   private options: CircuitBreakerOptions;
 
   private state = CircuitBreakerState.CLOSED;

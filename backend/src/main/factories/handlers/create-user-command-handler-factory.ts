@@ -6,19 +6,21 @@ import { UserDao } from '../../../infra/dao';
 import { PostgresAdapter } from '../../../infra/database/postgres/postgres-adapter';
 import { HashProvider, UUIDProvider } from '../../../infra/providers';
 import {
-  CircuitBreakerQuery,
+  DatabaseQueryCircuitBreaker,
   DatabaseStatementCircuitBreaker,
 } from '../../../infra/database/postgres/circuit-breaker';
 
-export const createUserCommandHandlerFactory = (): ICommandHandler => {
+export const createUserCommandHandlerFactory = (
+  postgres: PostgresAdapter,
+): ICommandHandler => {
   const uuidProvider = new UUIDProvider();
   const hashProvider = new HashProvider();
 
-  const postgresDB = new PostgresAdapter();
   const userDao = new UserDao({
-    read: new CircuitBreakerQuery(postgresDB),
-    write: new DatabaseStatementCircuitBreaker(postgresDB),
+    read: new DatabaseQueryCircuitBreaker(postgres),
+    write: new DatabaseStatementCircuitBreaker(postgres),
   });
+
   const userRepo = new UserRepository({
     user: userDao,
   });
