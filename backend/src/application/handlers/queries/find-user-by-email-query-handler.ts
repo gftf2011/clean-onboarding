@@ -13,7 +13,6 @@ export class FindUserByEmailQueryHandler implements IQueryHandler<UserModel> {
 
   public async handle(action: FindUserByEmailQuery): Promise<UserModel> {
     const user = await this.userRepo.findByEmail(action.data.email);
-
     /**
      * Extra validation added to verify if user data was modified in the database
      */

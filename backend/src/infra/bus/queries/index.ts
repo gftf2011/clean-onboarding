@@ -18,13 +18,13 @@ export class QueryBus implements IQueryBus {
     }
   }
 
-  public async execute(action: IQuery): Promise<void> {
+  public async execute(action: IQuery): Promise<any> {
     const handler = this.mapHandlers.get(action.operation);
 
     if (!handler) {
       throw new QueryNotRegisteredError(action);
     }
 
-    await handler.handle(action);
+    return handler.handle(action);
   }
 }
