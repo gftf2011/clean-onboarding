@@ -10,10 +10,20 @@ services:
     env_file:
      - ./.env
     depends_on:
+      - nginx
       - postgres
       - rabbitmq
     ports:
       - 3000:3000
+
+  nginx:
+    container_name: nginx
+    build: 
+      context: .
+      dockerfile: ./docker/dev/images/nginx/Dockerfile
+    restart: always
+    ports:
+      - 8000:8000
 
   postgres:
     build: ./docker/dev/images/postgres
