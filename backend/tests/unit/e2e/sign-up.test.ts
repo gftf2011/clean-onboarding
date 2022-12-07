@@ -9,7 +9,10 @@ import server from '../../../src/main/config/server';
 
 import { PostgresAdapter } from '../../../src/infra/database/postgres/postgres-adapter';
 
-import { InvalidEmailError } from '../../../src/domain/errors';
+import {
+  InvalidEmailError,
+  InvalidPasswordError,
+} from '../../../src/domain/errors';
 
 import { UserAlreadyExistsError } from '../../../src/application/errors';
 
@@ -65,6 +68,34 @@ describe('Sign-Up Route', () => {
       });
 
       const error = new InvalidEmailError('');
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        message: error.message,
+        name: error.name,
+      });
+    });
+
+    it('should return 400 with invalid password', async () => {
+      const email = 'test@mail.com';
+      const password = '';
+      const name = 'test';
+      const lastname = 'test';
+      const locale = 'UNITED_STATES_OF_AMERICA';
+      const phone = faker.phone.phoneNumber('##########');
+      const document = new RandomSSN().value().toString();
+
+      const response = await request(server).post('/api/V1/sign-up').send({
+        email,
+        password,
+        name,
+        lastname,
+        locale,
+        phone,
+        document,
+      });
+
+      const error = new InvalidPasswordError();
 
       expect(response.status).toBe(400);
       expect(response.body).toEqual({
