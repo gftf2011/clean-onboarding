@@ -104,6 +104,35 @@ describe('Sign-Up Route', () => {
       });
     });
 
+    it('should return 400 password matches cellphone', async () => {
+      const phone = faker.phone.phoneNumber('##########');
+
+      const email = 'test@mail.com';
+      const password = `a$${phone}Z`;
+      const name = 'test';
+      const lastname = 'test';
+      const locale = 'UNITED_STATES_OF_AMERICA';
+      const document = new RandomSSN().value().toString();
+
+      const response = await request(server).post('/api/V1/sign-up').send({
+        email,
+        password,
+        name,
+        lastname,
+        locale,
+        phone,
+        document,
+      });
+
+      const error = new InvalidPasswordError();
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        message: error.message,
+        name: error.name,
+      });
+    });
+
     it('should return 403 with a duplicated email', async () => {
       const email = 'test@mail.com';
       const password = '12345678xX@';
