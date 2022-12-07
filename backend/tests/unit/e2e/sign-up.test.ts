@@ -10,6 +10,7 @@ import server from '../../../src/main/config/server';
 import { PostgresAdapter } from '../../../src/infra/database/postgres/postgres-adapter';
 
 import {
+  InvalidDocumentNumberError,
   InvalidEmailError,
   InvalidLastnameError,
   InvalidNameError,
@@ -183,6 +184,34 @@ describe('Sign-Up Route', () => {
       });
 
       const error = new InvalidLastnameError('');
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        message: error.message,
+        name: error.name,
+      });
+    });
+
+    it('should return 400 with invalid document', async () => {
+      const email = 'test@mail.com';
+      const password = '12345678xX@';
+      const name = 'test';
+      const lastname = 'test';
+      const locale = 'UNITED_STATES_OF_AMERICA';
+      const document = '';
+      const phone = faker.phone.phoneNumber('##########');
+
+      const response = await request(server).post('/api/V1/sign-up').send({
+        email,
+        password,
+        name,
+        lastname,
+        locale,
+        phone,
+        document,
+      });
+
+      const error = new InvalidDocumentNumberError('', locale);
 
       expect(response.status).toBe(400);
       expect(response.body).toEqual({
