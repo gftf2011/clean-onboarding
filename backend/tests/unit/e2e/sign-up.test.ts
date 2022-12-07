@@ -3,6 +3,7 @@ import '../../../src/main/bootstrap';
 import faker from 'faker';
 import request from 'supertest';
 import { RandomSSN } from 'ssn';
+import { cpf } from 'cpf-cnpj-validator';
 
 import { loader } from '../../../src/main/loaders';
 import server from '../../../src/main/config/server';
@@ -38,6 +39,28 @@ describe('Sign-Up Route', () => {
       const locale = 'UNITED_STATES_OF_AMERICA';
       const phone = faker.phone.phoneNumber('##########');
       const document = new RandomSSN().value().toString();
+
+      const response = await request(server).post('/api/V1/sign-up').send({
+        email,
+        password,
+        name,
+        lastname,
+        locale,
+        phone,
+        document,
+      });
+
+      expect(response.status).toBe(204);
+    });
+
+    it('should return 204 with a valid user using BRAZILIAN location if locale is empty', async () => {
+      const email = 'test@mail.com';
+      const password = '12345678xX@';
+      const name = 'test';
+      const lastname = 'test';
+      const locale = '';
+      const phone = faker.phone.phoneNumber('##9########');
+      const document = cpf.generate();
 
       const response = await request(server).post('/api/V1/sign-up').send({
         email,
