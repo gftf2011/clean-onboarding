@@ -15,6 +15,7 @@ import {
   InvalidLastnameError,
   InvalidNameError,
   InvalidPasswordError,
+  InvalidPhoneError,
 } from '../../../src/domain/errors';
 
 import { UserAlreadyExistsError } from '../../../src/application/errors';
@@ -212,6 +213,34 @@ describe('Sign-Up Route', () => {
       });
 
       const error = new InvalidDocumentNumberError('', locale);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        message: error.message,
+        name: error.name,
+      });
+    });
+
+    it('should return 400 with invalid phone', async () => {
+      const email = 'test@mail.com';
+      const password = '12345678xX@';
+      const name = 'test';
+      const lastname = 'test';
+      const locale = 'UNITED_STATES_OF_AMERICA';
+      const document = new RandomSSN().value().toString();
+      const phone = '';
+
+      const response = await request(server).post('/api/V1/sign-up').send({
+        email,
+        password,
+        name,
+        lastname,
+        locale,
+        phone,
+        document,
+      });
+
+      const error = new InvalidPhoneError('', locale);
 
       expect(response.status).toBe(400);
       expect(response.body).toEqual({
