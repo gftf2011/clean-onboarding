@@ -27,7 +27,6 @@
     "start:docker:dev:up": "npm run run:docker:dev",
     "pretest": "npm run build:test && npm run run:docker:test",
     "test": "jest --clearCache ; jest --colors --coverage --verbose --detectOpenHandles --config jest.config.js",
-    "only:test": "jest --clearCache ; jest --colors --coverage --verbose --detectOpenHandles --config jest.config.js",
     "posttest": "npm run docker:clear"
   },
   "keywords": [],
