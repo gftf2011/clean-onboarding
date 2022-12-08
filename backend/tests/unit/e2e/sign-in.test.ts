@@ -9,6 +9,8 @@ import server from '../../../src/main/config/server';
 
 import { PostgresAdapter } from '../../../src/infra/database/postgres/postgres-adapter';
 
+import { UserDoNotExistsError } from '../../../src/application/errors';
+
 describe('Sign-In Route', () => {
   let postgres: PostgresAdapter;
 
@@ -47,6 +49,35 @@ describe('Sign-In Route', () => {
 
       expect(response.status).toBe(200);
       expect(response.body.auth).toBeDefined();
+    });
+
+    it('should return 401 if user is not found', async () => {
+      const email = 'test@mail.com';
+      const password = '12345678xX@';
+
+      const response = await request(server).post('/api/V1/sign-in').send({
+        email,
+        password,
+      });
+
+      const error = new UserDoNotExistsError();
+
+      expect(response.status).toBe(401);
+      expect(response.body).toEqual({
+        message: error.message,
+        name: error.name,
+      });
+    });
+
+    afterEach(async () => {
+      await postgres.createClient();
+      await postgres.openTransaction();
+      await postgres.statement({
+        queryText: 'DELETE FROM users_schema.users',
+        values: [],
+      });
+      await postgres.commit();
+      await postgres.closeTransaction();
     });
   });
 
