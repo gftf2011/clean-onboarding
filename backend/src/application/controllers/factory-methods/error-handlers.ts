@@ -8,10 +8,12 @@ import {
   ServiceUnavailableError,
   UserAlreadyExistsError,
   UserDoNotExistsError,
+  UserDataCompromisedError,
 } from '../../errors';
 import { HttpResponse } from '../../contracts/http';
 import {
   badRequest,
+  dataCompromisedError,
   forbidden,
   serverError,
   serviceUnavailableError,
@@ -55,6 +57,9 @@ class ApplicationErrorHandlerProduct implements ErrorHandlerProduct {
   public operation(error: ApplicationError): HttpResponse {
     if (error instanceof ServiceUnavailableError) {
       return serviceUnavailableError(error);
+    }
+    if (error instanceof UserDataCompromisedError) {
+      return dataCompromisedError(error);
     }
     if (
       error instanceof DatabaseError ||

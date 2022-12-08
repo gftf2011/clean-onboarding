@@ -5,6 +5,7 @@ import { IUserRepository } from '../../../domain/repositories';
 
 import { FindUserQuery } from '../../queries';
 import { IQueryHandler } from '../../contracts/handlers';
+import { UserDataCompromisedError } from '../../errors';
 
 export class FindUserQueryHandler implements IQueryHandler<UserModel> {
   readonly operation: string = 'find-user';
@@ -35,7 +36,7 @@ export class FindUserQueryHandler implements IQueryHandler<UserModel> {
       );
 
       if (userOrError.isLeft()) {
-        throw userOrError.value;
+        throw new UserDataCompromisedError();
       }
     }
 
