@@ -8,5 +8,4 @@ export * from './password-does-not-match-error';
 export * from './query-not-registered-error';
 export * from './service-unavailable-error';
 export * from './user-already-exists-error';
-export * from './user-data-compromised-error';
 export * from './user-do-not-exists-error';

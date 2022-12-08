@@ -1,14 +1,14 @@
-import '../../../src/main/bootstrap';
+import '../../src/main/bootstrap';
 
 import faker from 'faker';
 import request from 'supertest';
 import { RandomSSN } from 'ssn';
 import { cpf } from 'cpf-cnpj-validator';
 
-import { loader } from '../../../src/main/loaders';
-import server from '../../../src/main/config/server';
+import { loader } from '../../src/main/loaders';
+import server from '../../src/main/config/server';
 
-import { PostgresAdapter } from '../../../src/infra/database/postgres/postgres-adapter';
+import { PostgresAdapter } from '../../src/infra/database/postgres/postgres-adapter';
 
 import {
   InvalidDocumentNumberError,
@@ -17,9 +17,9 @@ import {
   InvalidNameError,
   InvalidPasswordError,
   InvalidPhoneError,
-} from '../../../src/domain/errors';
+} from '../../src/domain/errors';
 
-import { UserAlreadyExistsError } from '../../../src/application/errors';
+import { UserAlreadyExistsError } from '../../src/application/errors';
 
 describe('Sign-Up Route', () => {
   let postgres: PostgresAdapter;

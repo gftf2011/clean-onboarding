@@ -1,18 +1,18 @@
-import '../../../src/main/bootstrap';
+import '../../src/main/bootstrap';
 
 import faker from 'faker';
 import request from 'supertest';
 import { RandomSSN } from 'ssn';
 
-import { loader } from '../../../src/main/loaders';
-import server from '../../../src/main/config/server';
+import { loader } from '../../src/main/loaders';
+import server from '../../src/main/config/server';
 
-import { PostgresAdapter } from '../../../src/infra/database/postgres/postgres-adapter';
+import { PostgresAdapter } from '../../src/infra/database/postgres/postgres-adapter';
 
 import {
   UserDoNotExistsError,
   PasswordDoesNotMatchError,
-} from '../../../src/application/errors';
+} from '../../src/application/errors';
 
 describe('Sign-In Route', () => {
   let postgres: PostgresAdapter;

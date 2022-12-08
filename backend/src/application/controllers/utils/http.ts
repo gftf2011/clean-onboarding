@@ -44,11 +44,6 @@ export const serviceUnavailableError = (error: Error): HttpResponse => ({
   body: error,
 });
 
-export const dataCompromisedError = (error: Error): HttpResponse => ({
-  statusCode: 509,
-  body: error,
-});
-
 export const unknown = (error: Error): HttpResponse => ({
   statusCode: 599,
   body: error,
