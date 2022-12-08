@@ -33,7 +33,7 @@ export class SignInController extends HttpController {
 
     if (!userExists) throw new UserDoNotExistsError();
 
-    const validPassword = this.userServices.checkPassword(
+    const validPassword = await this.userServices.checkPassword(
       userExists.email,
       userExists.document,
       userExists.password,

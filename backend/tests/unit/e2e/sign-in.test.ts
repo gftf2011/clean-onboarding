@@ -9,7 +9,10 @@ import server from '../../../src/main/config/server';
 
 import { PostgresAdapter } from '../../../src/infra/database/postgres/postgres-adapter';
 
-import { UserDoNotExistsError } from '../../../src/application/errors';
+import {
+  UserDoNotExistsError,
+  PasswordDoesNotMatchError,
+} from '../../../src/application/errors';
 
 describe('Sign-In Route', () => {
   let postgres: PostgresAdapter;
@@ -63,6 +66,41 @@ describe('Sign-In Route', () => {
       const error = new UserDoNotExistsError();
 
       expect(response.status).toBe(401);
+      expect(response.body).toEqual({
+        message: error.message,
+        name: error.name,
+      });
+    });
+
+    it('should return 403 if user password does not match', async () => {
+      const email = 'test@mail.com';
+      const password = '12345678xX@';
+      const name = 'test';
+      const lastname = 'test';
+      const locale = 'UNITED_STATES_OF_AMERICA';
+      const phone = faker.phone.phoneNumber('##########');
+      const document = new RandomSSN().value().toString();
+
+      let response = await request(server).post('/api/V1/sign-up').send({
+        email,
+        password,
+        name,
+        lastname,
+        locale,
+        phone,
+        document,
+      });
+
+      expect(response.status).toBe(204);
+
+      response = await request(server).post('/api/V1/sign-in').send({
+        email,
+        password: '12345670zZ$',
+      });
+
+      const error = new PasswordDoesNotMatchError();
+
+      expect(response.status).toBe(403);
       expect(response.body).toEqual({
         message: error.message,
         name: error.name,
