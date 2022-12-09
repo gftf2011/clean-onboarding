@@ -2,10 +2,10 @@
 import fs from 'fs';
 import handlebars from 'handlebars';
 
-import { ITemplateService } from '../../application/contracts/providers';
+import { ITemplateProvider } from '../../application/contracts/providers';
 
-export class HandlebarsTemplateService implements ITemplateService {
-  public async parse(input: ITemplateService.Input): Promise<string> {
+export class HandlebarsTemplateProvider implements ITemplateProvider {
+  public async parse(input: ITemplateProvider.Input): Promise<string> {
     const templateFileContent = await fs.promises.readFile(input.filePath, {
       encoding: 'utf-8',
     });

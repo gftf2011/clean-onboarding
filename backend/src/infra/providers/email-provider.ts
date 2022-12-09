@@ -4,14 +4,14 @@ import {
   EmailConfig,
   EmailOptions,
   EmailTemplate,
-  IEmailService,
-  ITemplateService,
+  IEmailProvider,
+  ITemplateProvider,
 } from '../../application/contracts/providers';
 
-export class NodemailerEmailService implements IEmailService {
+export class NodemailerEmailProvider implements IEmailProvider {
   constructor(
     private readonly config: EmailConfig,
-    private readonly templateService: ITemplateService,
+    private readonly template: ITemplateProvider,
   ) {}
 
   async send(options: EmailOptions, context: EmailTemplate): Promise<void> {
@@ -28,7 +28,7 @@ export class NodemailerEmailService implements IEmailService {
       from: options.from,
       to: options.to,
       subject: options.subject,
-      html: await this.templateService.parse({
+      html: await this.template.parse({
         data: context.data,
         filePath: context.path,
       }),
