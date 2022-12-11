@@ -14,6 +14,8 @@ export class WelcomeEmailEventHandler implements IEventHandler {
       __dirname,
       '..',
       '..',
+      '..',
+      '..',
       'views',
       'layouts',
       'welcome.hbs',

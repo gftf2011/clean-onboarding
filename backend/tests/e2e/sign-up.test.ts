@@ -37,7 +37,7 @@ describe('Sign-Up Route', () => {
   describe('POST - /api/V1/sign-up', () => {
     describe('Locale - UNITED_STATES_OF_AMERICA', () => {
       it('should return 204 with a valid user', async () => {
-        const email = 'test@mail.com';
+        const email = 'test1@mail.com';
         const password = '12345678xX@';
         const name = 'test';
         const lastname = 'test';
@@ -324,7 +324,7 @@ describe('Sign-Up Route', () => {
 
     describe('Locale - BRAZILIAN', () => {
       it('should return 204 with a valid user', async () => {
-        const email = 'test@mail.com';
+        const email = 'test2@mail.com';
         const password = '12345678xX@';
         const name = 'test';
         const lastname = 'test';
@@ -361,7 +361,7 @@ describe('Sign-Up Route', () => {
       });
 
       it('should return 204 with a valid user if locale is empty', async () => {
-        const email = 'test@mail.com';
+        const email = 'test3@mail.com';
         const password = '12345678xX@';
         const name = 'test';
         const lastname = 'test';

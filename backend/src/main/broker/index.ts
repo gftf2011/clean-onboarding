@@ -3,8 +3,10 @@
  */
 import '../bootstrap';
 import { loader } from '../loaders';
-import setupQueues from '../config/queues';
+import broker from '../config/broker';
 
 loader().then(() => {
-  setupQueues();
+  broker().then(() => {
+    console.log(`broker running`);
+  });
 });

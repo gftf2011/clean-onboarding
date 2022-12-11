@@ -18,6 +18,7 @@ export class NodemailerEmailProvider implements IEmailProvider {
     const transporter = nodemailer.createTransport({
       host: this.config.host,
       port: this.config.port,
+      secure: false,
       auth: {
         user: this.config.username,
         pass: this.config.password,

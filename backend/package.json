@@ -24,7 +24,7 @@
     "start": "node dist/main/server/index.js",
     "start:queue": "node dist/main/broker/index.js",
     "start:dev": "npm run build && npm run start",
-    "start:queue:dev": "npm run build && npm run start",
+    "start:queue:dev": "npm run build && npm run start:queue",
     "prestart:docker:dev:up": "npm run build:dev",
     "start:docker:dev:up": "npm run run:docker:dev",
     "pretest": "npm run build:test && npm run run:docker:test",

@@ -8,8 +8,12 @@ export class RabbitmqEventPublisher implements IEventPublisher {
   constructor(private readonly queue: IQueue) {}
 
   public async publish(event: IEvent): Promise<void> {
-    await this.queue.createChannel();
-    await this.queue.publish(event.operation, event);
-    await this.queue.closeChannel();
+    try {
+      await this.queue.createChannel();
+      await this.queue.publish(event.operation, event);
+      await this.queue.closeChannel();
+    } catch (error) {
+      await this.queue.closeChannel();
+    }
   }
 }

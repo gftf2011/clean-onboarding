@@ -8,7 +8,7 @@ import { PostgresAdapter } from '../../../infra/database/postgres/postgres-adapt
 
 import { commandBusFactory, queryBusFactory } from '../bus';
 
-export const signUpControllerFactory = async (): Promise<Controller> => {
+export const signUpControllerFactory = (): Controller => {
   const postgres = new PostgresAdapter();
   const rabbitmq = new RabbitmqAdapter();
 
