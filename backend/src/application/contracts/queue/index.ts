@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
 export interface IQueueConnection {
-  connect: () => Promise<void>;
+  createChannel: () => Promise<void>;
+  closeChannel: () => Promise<void>;
   close: () => Promise<void>;
 }
 

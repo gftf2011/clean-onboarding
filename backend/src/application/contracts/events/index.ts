@@ -1,3 +1,5 @@
+import { IEventHandler } from '../handlers';
+
 /* eslint-disable @typescript-eslint/ban-types */
 export interface IEvent {
   readonly operation: string;
@@ -9,5 +11,5 @@ export interface IEventPublisher {
 }
 
 export interface IEventSubscriber {
-  subscribe: (event: string, callback: Function) => Promise<void>;
+  subscribe: (handler: IEventHandler) => Promise<void>;
 }

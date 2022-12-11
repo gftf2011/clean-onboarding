@@ -16,6 +16,18 @@ services:
     ports:
       - 3000:3000
 
+  app-queue:
+    container_name: app-queue
+    build: 
+      context: .
+      dockerfile: ./docker/dev/images/app-queue/Dockerfile
+    restart: always
+    env_file:
+     - ./.env
+    depends_on:
+      - postgres
+      - rabbitmq
+
   nginx:
     container_name: nginx
     build: 

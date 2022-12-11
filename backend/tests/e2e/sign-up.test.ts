@@ -8,6 +8,7 @@ import { cpf } from 'cpf-cnpj-validator';
 import { loader } from '../../src/main/loaders';
 import server from '../../src/main/config/server';
 
+import { RabbitmqAdapter } from '../../src/infra/queue/rabbitmq/rabbitmq-adapter';
 import { PostgresAdapter } from '../../src/infra/database/postgres/postgres-adapter';
 
 import {
@@ -20,14 +21,17 @@ import {
 } from '../../src/domain/errors';
 
 import { UserAlreadyExistsError } from '../../src/application/errors';
+import { WelcomeEmailEvent } from '../../src/application/events';
 
 describe('Sign-Up Route', () => {
   let postgres: PostgresAdapter;
+  let rabbitmq: RabbitmqAdapter;
 
   beforeAll(async () => {
     await loader();
 
     postgres = new PostgresAdapter();
+    rabbitmq = new RabbitmqAdapter();
   });
 
   describe('POST - /api/V1/sign-up', () => {
@@ -50,6 +54,21 @@ describe('Sign-Up Route', () => {
           phone,
           document,
         });
+
+        let data: any = {};
+
+        await rabbitmq.createChannel();
+        await rabbitmq.consume('welcome-email', async (input: any) => {
+          data = input;
+        });
+        await rabbitmq.closeChannel();
+
+        expect(data).toEqual(
+          new WelcomeEmailEvent({
+            fullName: `${name} ${lastname}`,
+            to: email,
+          }),
+        );
 
         expect(response.status).toBe(204);
       });
@@ -323,6 +342,21 @@ describe('Sign-Up Route', () => {
           document,
         });
 
+        let data: any = {};
+
+        await rabbitmq.createChannel();
+        await rabbitmq.consume('welcome-email', async (input: any) => {
+          data = input;
+        });
+        await rabbitmq.closeChannel();
+
+        expect(data).toEqual(
+          new WelcomeEmailEvent({
+            fullName: `${name} ${lastname}`,
+            to: email,
+          }),
+        );
+
         expect(response.status).toBe(204);
       });
 
@@ -344,6 +378,21 @@ describe('Sign-Up Route', () => {
           phone,
           document,
         });
+
+        let data: any = {};
+
+        await rabbitmq.createChannel();
+        await rabbitmq.consume('welcome-email', async (input: any) => {
+          data = input;
+        });
+        await rabbitmq.closeChannel();
+
+        expect(data).toEqual(
+          new WelcomeEmailEvent({
+            fullName: `${name} ${lastname}`,
+            to: email,
+          }),
+        );
 
         expect(response.status).toBe(204);
       });
@@ -600,5 +649,6 @@ describe('Sign-Up Route', () => {
 
   afterAll(async () => {
     await postgres.close();
+    await rabbitmq.close();
   });
 });

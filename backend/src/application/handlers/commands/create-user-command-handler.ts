@@ -3,7 +3,9 @@ import { UserModel } from '../../../domain/models';
 import { IUserRepository } from '../../../domain/repositories';
 
 import { CreateUserCommand } from '../../commands';
+import { WelcomeEmailEvent } from '../../events';
 import { ICommandHandler } from '../../contracts/handlers';
+import { IEventPublisher } from '../../contracts/events';
 import { IUUIDProvider, IHashProvider } from '../../contracts/providers';
 
 export class CreateUserCommandHandler implements ICommandHandler {
@@ -13,6 +15,7 @@ export class CreateUserCommandHandler implements ICommandHandler {
     private readonly uuid: IUUIDProvider,
     private readonly hash: IHashProvider,
     private readonly userRepo: IUserRepository,
+    private readonly publisher: IEventPublisher,
   ) {}
 
   public async handle(command: CreateUserCommand): Promise<void> {
@@ -57,5 +60,12 @@ export class CreateUserCommandHandler implements ICommandHandler {
     };
 
     await this.userRepo.save(user);
+
+    await this.publisher.publish(
+      new WelcomeEmailEvent({
+        fullName: `${user.name} ${user.lastname}`,
+        to: user.email,
+      }),
+    );
   }
 }
