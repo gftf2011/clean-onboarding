@@ -4,9 +4,11 @@ import faker from 'faker';
 import request from 'supertest';
 import { RandomSSN } from 'ssn';
 import { cpf } from 'cpf-cnpj-validator';
+import nodemailer from 'nodemailer';
 
 import { loader } from '../../src/main/loaders';
 import server from '../../src/main/config/server';
+import broker from '../../src/main/config/broker';
 
 import { RabbitmqAdapter } from '../../src/infra/queue/rabbitmq/rabbitmq-adapter';
 import { PostgresAdapter } from '../../src/infra/database/postgres/postgres-adapter';
@@ -21,14 +23,40 @@ import {
 } from '../../src/domain/errors';
 
 import { UserAlreadyExistsError } from '../../src/application/errors';
-import { WelcomeEmailEvent } from '../../src/application/events';
+
+jest.mock('nodemailer');
 
 describe('Sign-Up Route', () => {
   let postgres: PostgresAdapter;
   let rabbitmq: RabbitmqAdapter;
 
+  const closeAllConnections = async (): Promise<void> => {
+    await postgres.close();
+    await rabbitmq.close();
+  };
+
+  const cleanAllUsers = async (): Promise<void> => {
+    await postgres.createClient();
+    await postgres.openTransaction();
+    await postgres.statement({
+      queryText: 'DELETE FROM users_schema.users',
+      values: [],
+    });
+    await postgres.commit();
+    await postgres.closeTransaction();
+  };
+
+  const sleep = (timeout: number): Promise<void> => {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        resolve();
+      }, timeout);
+    });
+  };
+
   beforeAll(async () => {
     await loader();
+    await broker();
 
     postgres = new PostgresAdapter();
     rabbitmq = new RabbitmqAdapter();
@@ -36,63 +64,57 @@ describe('Sign-Up Route', () => {
 
   describe('POST - /api/V1/sign-up', () => {
     describe('Locale - UNITED_STATES_OF_AMERICA', () => {
+      beforeEach(() => {
+        /**
+         * Most important - it clears the cache
+         */
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+      });
+
       it('should return 204 with a valid user', async () => {
-        const email = 'test1@mail.com';
-        const password = '12345678xX@';
-        const name = 'test';
-        const lastname = 'test';
-        const locale = 'UNITED_STATES_OF_AMERICA';
-        const phone = faker.phone.phoneNumber('##########');
-        const document = new RandomSSN().value().toString();
+        const sendMailSpy = jest.fn();
 
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
+        (nodemailer.createTransport as any).mockReturnValue({
+          sendMail: sendMailSpy,
         });
 
-        let data: any = {};
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: 'UNITED_STATES_OF_AMERICA',
+          phone: faker.phone.phoneNumber('##########'),
+          document: new RandomSSN().value().toString(),
+        };
 
-        await rabbitmq.createChannel();
-        await rabbitmq.consume('welcome-email', async (input: any) => {
-          data = input;
-        });
-        await rabbitmq.closeChannel();
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
-        expect(data).toEqual(
-          new WelcomeEmailEvent({
-            fullName: `${name} ${lastname}`,
-            to: email,
-          }),
-        );
+        await sleep(500);
 
         expect(response.status).toBe(204);
+        expect(sendMailSpy).toHaveBeenCalledTimes(1);
       });
 
       it('should return 400 with invalid email', async () => {
-        const email = '';
-        const password = '12345678xX@';
-        const name = 'test';
-        const lastname = 'test';
-        const locale = 'UNITED_STATES_OF_AMERICA';
-        const phone = faker.phone.phoneNumber('##########');
-        const document = new RandomSSN().value().toString();
+        const user = {
+          email: '',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: 'UNITED_STATES_OF_AMERICA',
+          phone: faker.phone.phoneNumber('##########'),
+          document: new RandomSSN().value().toString(),
+        };
 
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
-        });
+        const error = new InvalidEmailError(user.email);
 
-        const error = new InvalidEmailError('');
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -102,25 +124,21 @@ describe('Sign-Up Route', () => {
       });
 
       it('should return 400 with invalid password', async () => {
-        const email = 'test@mail.com';
-        const password = '';
-        const name = 'test';
-        const lastname = 'test';
-        const locale = 'UNITED_STATES_OF_AMERICA';
-        const phone = faker.phone.phoneNumber('##########');
-        const document = new RandomSSN().value().toString();
-
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
-        });
+        const user = {
+          email: 'test@mail.com',
+          password: '',
+          name: 'test',
+          lastname: 'test',
+          locale: 'UNITED_STATES_OF_AMERICA',
+          phone: faker.phone.phoneNumber('##########'),
+          document: new RandomSSN().value().toString(),
+        };
 
         const error = new InvalidPasswordError();
+
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -132,22 +150,19 @@ describe('Sign-Up Route', () => {
       it('should return 400 password matches cellphone', async () => {
         const phone = faker.phone.phoneNumber('##########');
 
-        const email = 'test@mail.com';
-        const password = `a$${phone}Z`;
-        const name = 'test';
-        const lastname = 'test';
-        const locale = 'UNITED_STATES_OF_AMERICA';
-        const document = new RandomSSN().value().toString();
-
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
+        const user = {
+          email: 'test@mail.com',
+          password: `a$${phone}Z`,
+          name: 'test',
+          lastname: 'test',
+          locale: 'UNITED_STATES_OF_AMERICA',
+          document: new RandomSSN().value().toString(),
           phone,
-          document,
-        });
+        };
+
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
         const error = new InvalidPasswordError();
 
@@ -159,25 +174,21 @@ describe('Sign-Up Route', () => {
       });
 
       it('should return 400 with invalid name', async () => {
-        const email = 'test@mail.com';
-        const password = '12345678xX@';
-        const name = '';
-        const lastname = 'test';
-        const locale = 'UNITED_STATES_OF_AMERICA';
-        const document = new RandomSSN().value().toString();
-        const phone = faker.phone.phoneNumber('##########');
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: '',
+          lastname: 'test',
+          locale: 'UNITED_STATES_OF_AMERICA',
+          document: new RandomSSN().value().toString(),
+          phone: faker.phone.phoneNumber('##########'),
+        };
 
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
-        });
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
-        const error = new InvalidNameError('');
+        const error = new InvalidNameError(user.name);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -187,25 +198,21 @@ describe('Sign-Up Route', () => {
       });
 
       it('should return 400 with invalid lastname', async () => {
-        const email = 'test@mail.com';
-        const password = '12345678xX@';
-        const name = 'test';
-        const lastname = '';
-        const locale = 'UNITED_STATES_OF_AMERICA';
-        const document = new RandomSSN().value().toString();
-        const phone = faker.phone.phoneNumber('##########');
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: '',
+          locale: 'UNITED_STATES_OF_AMERICA',
+          document: new RandomSSN().value().toString(),
+          phone: faker.phone.phoneNumber('##########'),
+        };
 
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
-        });
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
-        const error = new InvalidLastnameError('');
+        const error = new InvalidLastnameError(user.lastname);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -215,25 +222,24 @@ describe('Sign-Up Route', () => {
       });
 
       it('should return 400 with invalid document', async () => {
-        const email = 'test@mail.com';
-        const password = '12345678xX@';
-        const name = 'test';
-        const lastname = 'test';
-        const locale = 'UNITED_STATES_OF_AMERICA';
-        const document = '';
-        const phone = faker.phone.phoneNumber('##########');
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: 'UNITED_STATES_OF_AMERICA',
+          document: '',
+          phone: faker.phone.phoneNumber('##########'),
+        };
 
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
-        });
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
-        const error = new InvalidDocumentNumberError('', locale);
+        const error = new InvalidDocumentNumberError(
+          user.document,
+          user.locale,
+        );
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -243,25 +249,21 @@ describe('Sign-Up Route', () => {
       });
 
       it('should return 400 with invalid phone', async () => {
-        const email = 'test@mail.com';
-        const password = '12345678xX@';
-        const name = 'test';
-        const lastname = 'test';
-        const locale = 'UNITED_STATES_OF_AMERICA';
-        const document = new RandomSSN().value().toString();
-        const phone = '';
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: 'UNITED_STATES_OF_AMERICA',
+          document: new RandomSSN().value().toString(),
+          phone: '',
+        };
 
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
-        });
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
-        const error = new InvalidPhoneError('', locale);
+        const error = new InvalidPhoneError(user.phone, user.locale);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -271,152 +273,127 @@ describe('Sign-Up Route', () => {
       });
 
       it('should return 403 with a duplicated email', async () => {
-        const email = 'test@mail.com';
-        const password = '12345678xX@';
-        const name = 'test';
-        const lastname = 'test';
-        const locale = 'UNITED_STATES_OF_AMERICA';
-        const phone = faker.phone.phoneNumber('##########');
-        const document = new RandomSSN().value().toString();
+        const sendMailSpy = jest.fn();
 
-        let response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
+        (nodemailer.createTransport as any).mockReturnValue({
+          sendMail: sendMailSpy,
         });
 
-        expect(response.status).toBe(204);
-
-        response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
-        });
-
+        const user = {
+          email: 'test1@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: 'UNITED_STATES_OF_AMERICA',
+          phone: faker.phone.phoneNumber('##########'),
+          document: new RandomSSN().value().toString(),
+        };
         const error = new UserAlreadyExistsError();
 
-        expect(response.status).toBe(403);
-        expect(response.body).toEqual({
+        const successResponse = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
+
+        await sleep(500);
+
+        const failResponse = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
+
+        expect(successResponse.status).toBe(204);
+
+        expect(sendMailSpy).toHaveBeenCalledTimes(1);
+
+        expect(failResponse.status).toBe(403);
+        expect(failResponse.body).toEqual({
           message: error.message,
           name: error.name,
         });
       });
 
       afterEach(async () => {
-        await postgres.createClient();
-        await postgres.openTransaction();
-        await postgres.statement({
-          queryText: 'DELETE FROM users_schema.users',
-          values: [],
-        });
-        await postgres.commit();
-        await postgres.closeTransaction();
+        await cleanAllUsers();
       });
     });
 
     describe('Locale - BRAZILIAN', () => {
+      beforeEach(() => {
+        /**
+         * Most important - it clears the cache
+         */
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+      });
+
       it('should return 204 with a valid user', async () => {
-        const email = 'test2@mail.com';
-        const password = '12345678xX@';
-        const name = 'test';
-        const lastname = 'test';
-        const locale = 'BRAZILIAN';
-        const phone = faker.phone.phoneNumber('##9########');
-        const document = cpf.generate();
+        const sendMailSpy = jest.fn();
 
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
+        (nodemailer.createTransport as any).mockReturnValue({
+          sendMail: sendMailSpy,
         });
 
-        let data: any = {};
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: 'BRAZILIAN',
+          phone: faker.phone.phoneNumber('##9########'),
+          document: cpf.generate(),
+        };
 
-        await rabbitmq.createChannel();
-        await rabbitmq.consume('welcome-email', async (input: any) => {
-          data = input;
-        });
-        await rabbitmq.closeChannel();
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
-        expect(data).toEqual(
-          new WelcomeEmailEvent({
-            fullName: `${name} ${lastname}`,
-            to: email,
-          }),
-        );
+        await sleep(500);
 
         expect(response.status).toBe(204);
+        expect(sendMailSpy).toHaveBeenCalledTimes(1);
       });
 
       it('should return 204 with a valid user if locale is empty', async () => {
-        const email = 'test3@mail.com';
-        const password = '12345678xX@';
-        const name = 'test';
-        const lastname = 'test';
-        const locale = '';
-        const phone = faker.phone.phoneNumber('##9########');
-        const document = cpf.generate();
+        const sendMailSpy = jest.fn();
 
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
+        (nodemailer.createTransport as any).mockReturnValue({
+          sendMail: sendMailSpy,
         });
 
-        let data: any = {};
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: '',
+          phone: faker.phone.phoneNumber('##9########'),
+          document: cpf.generate(),
+        };
 
-        await rabbitmq.createChannel();
-        await rabbitmq.consume('welcome-email', async (input: any) => {
-          data = input;
-        });
-        await rabbitmq.closeChannel();
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
-        expect(data).toEqual(
-          new WelcomeEmailEvent({
-            fullName: `${name} ${lastname}`,
-            to: email,
-          }),
-        );
+        await sleep(500);
 
         expect(response.status).toBe(204);
+        expect(sendMailSpy).toHaveBeenCalledTimes(1);
       });
 
       it('should return 400 with invalid email', async () => {
-        const email = '';
-        const password = '12345678xX@';
-        const name = 'test';
-        const lastname = 'test';
-        const locale = 'BRAZILIAN';
-        const phone = faker.phone.phoneNumber('##9########');
-        const document = cpf.generate();
+        const user = {
+          email: '',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: 'BRAZILIAN',
+          phone: faker.phone.phoneNumber('##9########'),
+          document: cpf.generate(),
+        };
+        const error = new InvalidEmailError(user.email);
 
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
-        });
-
-        const error = new InvalidEmailError('');
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -426,25 +403,20 @@ describe('Sign-Up Route', () => {
       });
 
       it('should return 400 with invalid password', async () => {
-        const email = 'test@mail.com';
-        const password = '';
-        const name = 'test';
-        const lastname = 'test';
-        const locale = 'BRAZILIAN';
-        const phone = faker.phone.phoneNumber('##9########');
-        const document = cpf.generate();
-
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
-        });
-
+        const user = {
+          email: 'test@mail.com',
+          password: '',
+          name: 'test',
+          lastname: 'test',
+          locale: 'BRAZILIAN',
+          phone: faker.phone.phoneNumber('##9########'),
+          document: cpf.generate(),
+        };
         const error = new InvalidPasswordError();
+
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -456,24 +428,20 @@ describe('Sign-Up Route', () => {
       it('should return 400 password matches cellphone', async () => {
         const phone = faker.phone.phoneNumber('##9########');
 
-        const email = 'test@mail.com';
-        const password = `a$${phone}Z`;
-        const name = 'test';
-        const lastname = 'test';
-        const locale = 'BRAZILIAN';
-        const document = cpf.generate();
-
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
+        const user = {
+          email: 'test@mail.com',
+          password: `a$${phone}Z`,
+          name: 'test',
+          lastname: 'test',
+          locale: 'BRAZILIAN',
+          document: cpf.generate(),
           phone,
-          document,
-        });
-
+        };
         const error = new InvalidPasswordError();
+
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -483,25 +451,20 @@ describe('Sign-Up Route', () => {
       });
 
       it('should return 400 with invalid name', async () => {
-        const email = 'test@mail.com';
-        const password = '12345678xX@';
-        const name = '';
-        const lastname = 'test';
-        const locale = 'BRAZILIAN';
-        const phone = faker.phone.phoneNumber('##9########');
-        const document = cpf.generate();
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: '',
+          lastname: 'test',
+          locale: 'BRAZILIAN',
+          phone: faker.phone.phoneNumber('##9########'),
+          document: cpf.generate(),
+        };
+        const error = new InvalidNameError(user.name);
 
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
-        });
-
-        const error = new InvalidNameError('');
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -511,25 +474,20 @@ describe('Sign-Up Route', () => {
       });
 
       it('should return 400 with invalid lastname', async () => {
-        const email = 'test@mail.com';
-        const password = '12345678xX@';
-        const name = 'test';
-        const lastname = '';
-        const locale = 'BRAZILIAN';
-        const phone = faker.phone.phoneNumber('##9########');
-        const document = cpf.generate();
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: '',
+          locale: 'BRAZILIAN',
+          phone: faker.phone.phoneNumber('##9########'),
+          document: cpf.generate(),
+        };
+        const error = new InvalidLastnameError(user.lastname);
 
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
-        });
-
-        const error = new InvalidLastnameError('');
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -539,25 +497,23 @@ describe('Sign-Up Route', () => {
       });
 
       it('should return 400 with invalid document', async () => {
-        const email = 'test@mail.com';
-        const password = '12345678xX@';
-        const name = 'test';
-        const lastname = 'test';
-        const locale = 'BRAZILIAN';
-        const phone = faker.phone.phoneNumber('##9########');
-        const document = '';
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: 'BRAZILIAN',
+          phone: faker.phone.phoneNumber('##9########'),
+          document: '',
+        };
+        const error = new InvalidDocumentNumberError(
+          user.document,
+          user.locale,
+        );
 
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
-        });
-
-        const error = new InvalidDocumentNumberError('', locale);
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -567,25 +523,20 @@ describe('Sign-Up Route', () => {
       });
 
       it('should return 400 with invalid phone', async () => {
-        const email = 'test@mail.com';
-        const password = '12345678xX@';
-        const name = 'test';
-        const lastname = 'test';
-        const locale = 'BRAZILIAN';
-        const phone = '';
-        const document = cpf.generate();
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: 'BRAZILIAN',
+          phone: '',
+          document: cpf.generate(),
+        };
+        const error = new InvalidPhoneError(user.phone, user.locale);
 
-        const response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
-        });
-
-        const error = new InvalidPhoneError('', locale);
+        const response = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -595,60 +546,55 @@ describe('Sign-Up Route', () => {
       });
 
       it('should return 403 with a duplicated email', async () => {
-        const email = 'test@mail.com';
-        const password = '12345678xX@';
-        const name = 'test';
-        const lastname = 'test';
-        const locale = 'BRAZILIAN';
-        const phone = faker.phone.phoneNumber('##9########');
-        const document = cpf.generate();
+        const sendMailSpy = jest.fn();
 
-        let response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
+        (nodemailer.createTransport as any).mockReturnValue({
+          sendMail: sendMailSpy,
         });
 
-        expect(response.status).toBe(204);
-
-        response = await request(server).post('/api/V1/sign-up').send({
-          email,
-          password,
-          name,
-          lastname,
-          locale,
-          phone,
-          document,
-        });
-
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: 'BRAZILIAN',
+          phone: faker.phone.phoneNumber('##9########'),
+          document: cpf.generate(),
+        };
         const error = new UserAlreadyExistsError();
 
-        expect(response.status).toBe(403);
-        expect(response.body).toEqual({
+        const successResponse = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
+
+        await sleep(500);
+
+        const failResponse = await request(server)
+          .post('/api/V1/sign-up')
+          .send(user);
+
+        expect(successResponse.status).toBe(204);
+
+        expect(sendMailSpy).toHaveBeenCalledTimes(1);
+
+        expect(failResponse.status).toBe(403);
+        expect(failResponse.body).toEqual({
           message: error.message,
           name: error.name,
         });
       });
 
       afterEach(async () => {
-        await postgres.createClient();
-        await postgres.openTransaction();
-        await postgres.statement({
-          queryText: 'DELETE FROM users_schema.users',
-          values: [],
-        });
-        await postgres.commit();
-        await postgres.closeTransaction();
+        await cleanAllUsers();
       });
     });
   });
 
   afterAll(async () => {
-    await postgres.close();
-    await rabbitmq.close();
+    /**
+     * Most important - restores module to original implementation
+     */
+    jest.restoreAllMocks();
+    await closeAllConnections();
   });
 });
