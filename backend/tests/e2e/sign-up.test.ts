@@ -4,6 +4,7 @@ import faker from 'faker';
 import request from 'supertest';
 import { RandomSSN } from 'ssn';
 import { cpf } from 'cpf-cnpj-validator';
+
 import nodemailer from 'nodemailer';
 
 import { loader } from '../../src/main/loaders';
