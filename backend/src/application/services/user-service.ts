@@ -5,36 +5,13 @@ import { UserModel } from '../../domain/models';
 import { IUserService } from '../contracts/services';
 import { ICommandBus, IQueryBus } from '../contracts/bus';
 import { CreateUserCommand } from '../commands';
-import {
-  CheckUserPasswordQuery,
-  CreateUserSessionQuery,
-  FindUserByEmailQuery,
-  FindUserQuery,
-} from '../queries';
+import { FindUserByEmailQuery, FindUserQuery } from '../queries';
 
 export class UserService implements IUserService {
   constructor(
     private readonly commandBus: ICommandBus,
     private readonly queryBus: IQueryBus,
   ) {}
-
-  public async checkPassword(
-    email: string,
-    document: string,
-    hashedPassword: string,
-    password: string,
-  ): Promise<boolean> {
-    const response = await this.queryBus.execute(
-      new CheckUserPasswordQuery({
-        email,
-        document,
-        hashedPassword,
-        password,
-      }),
-    );
-
-    return response;
-  }
 
   public async findByEmail(email: string): Promise<UserModel> {
     const response = await this.queryBus.execute(
@@ -44,22 +21,6 @@ export class UserService implements IUserService {
     );
 
     return response as UserModel;
-  }
-
-  public async createSession(
-    userId: string,
-    userEmail: string,
-    secret: string,
-  ): Promise<string> {
-    const response = await this.queryBus.execute(
-      new CreateUserSessionQuery({
-        id: userId,
-        secret,
-        email: userEmail,
-      }),
-    );
-
-    return response;
   }
 
   public async find(id: string): Promise<UserModel> {

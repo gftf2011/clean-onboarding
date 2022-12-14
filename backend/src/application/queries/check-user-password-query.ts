@@ -1,11 +1,12 @@
+import { AccountDTO } from '../../domain/dtos';
+
 import { IQuery } from '../contracts/queries';
 
 export namespace CheckUserPasswordQuery {
   export type Data = {
-    email: string;
+    account: AccountDTO;
     document: string;
     hashedPassword: string;
-    password: string;
   };
 }
 

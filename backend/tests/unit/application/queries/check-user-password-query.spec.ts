@@ -11,9 +11,11 @@ describe('Check User Password Query', () => {
     const hashedPassword = faker.datatype.uuid();
 
     const input = {
+      account: {
+        email,
+        password,
+      },
       document,
-      email,
-      password,
       hashedPassword,
     };
 
