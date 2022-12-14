@@ -1,5 +1,6 @@
 import express, { Express } from 'express';
 
+// It uses the singleton design pattern
 export class ExpressAdapter {
   private static instance: ExpressAdapter;
 

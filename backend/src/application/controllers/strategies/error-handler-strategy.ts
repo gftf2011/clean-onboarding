@@ -8,22 +8,26 @@ import {
   DomainErrorHandler,
 } from '../factory-methods';
 
+// It uses the strategy design pattern
 interface ErrorHandlerStrategy {
   handle: (error: Error) => HttpResponse;
 }
 
+// It uses the strategy design pattern
 class DomainErrorHandlerStrategy implements ErrorHandlerStrategy {
   public handle(error: DomainError): HttpResponse {
     return new DomainErrorHandler().handle(error);
   }
 }
 
+// It uses the strategy design pattern
 class ApplicationErrorHandlerStrategy implements ErrorHandlerStrategy {
   public handle(error: ApplicationError): HttpResponse {
     return new ApplicationErrorHandler().handle(error);
   }
 }
 
+// It uses the strategy design pattern
 class ErrorHandlerContext {
   private strategy: ErrorHandlerStrategy;
 
@@ -36,6 +40,7 @@ class ErrorHandlerContext {
   }
 }
 
+// It uses the strategy design pattern
 export class ErrorHandlerInvoker {
   private context: ErrorHandlerContext;
 

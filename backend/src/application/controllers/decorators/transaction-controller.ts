@@ -1,6 +1,7 @@
 import { Controller } from '../../contracts/controllers';
 import { IDatabase } from '../../contracts/database';
 
+// It uses the decorator design pattern
 export class TransactionController implements Controller {
   constructor(
     private readonly decoratee: Controller,

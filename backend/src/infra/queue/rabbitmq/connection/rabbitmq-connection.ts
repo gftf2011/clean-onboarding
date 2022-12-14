@@ -1,5 +1,6 @@
 import { Connection, Options, connect } from 'amqplib';
 
+// It uses the singleton design pattern
 export class RabbitmqConnection {
   private static instance: RabbitmqConnection;
 

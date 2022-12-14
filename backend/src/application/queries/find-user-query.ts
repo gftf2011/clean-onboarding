@@ -6,6 +6,7 @@ export namespace FindUserQuery {
   };
 }
 
+// It uses the command design pattern
 export class FindUserQuery implements IQuery {
   readonly operation: string = 'find-user';
 

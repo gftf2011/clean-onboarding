@@ -30,10 +30,12 @@ import {
   InvalidPhoneError,
 } from '../../../domain/errors';
 
+// It uses the factory-method design pattern
 interface ErrorHandlerProduct {
   operation: (error: Error) => HttpResponse;
 }
 
+// It uses the factory-method design pattern
 class DomainErrorHandlerProduct implements ErrorHandlerProduct {
   public operation(error: DomainError): HttpResponse {
     if (
@@ -51,6 +53,7 @@ class DomainErrorHandlerProduct implements ErrorHandlerProduct {
   }
 }
 
+// It uses the factory-method design pattern
 class ApplicationErrorHandlerProduct implements ErrorHandlerProduct {
   public operation(error: ApplicationError): HttpResponse {
     if (error instanceof ServiceUnavailableError) {
@@ -76,6 +79,7 @@ class ApplicationErrorHandlerProduct implements ErrorHandlerProduct {
   }
 }
 
+// It uses the factory-method design pattern
 abstract class ErrorHandlerCreator {
   protected abstract factoryMethod(): ErrorHandlerProduct;
 
@@ -85,12 +89,14 @@ abstract class ErrorHandlerCreator {
   }
 }
 
+// It uses the factory-method design pattern
 export class DomainErrorHandler extends ErrorHandlerCreator {
   protected factoryMethod(): ErrorHandlerProduct {
     return new DomainErrorHandlerProduct();
   }
 }
 
+// It uses the factory-method design pattern
 export class ApplicationErrorHandler extends ErrorHandlerCreator {
   protected factoryMethod(): ErrorHandlerProduct {
     return new ApplicationErrorHandlerProduct();

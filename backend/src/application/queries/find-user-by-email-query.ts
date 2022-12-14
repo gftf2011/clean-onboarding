@@ -6,6 +6,7 @@ export namespace FindUserByEmailQuery {
   };
 }
 
+// It uses the command design pattern
 export class FindUserByEmailQuery implements IQuery {
   readonly operation: string = 'find-user-by-email';
 

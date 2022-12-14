@@ -6,6 +6,7 @@ import { HttpRequest } from '../../application/contracts/http';
 
 type Adapter = (req: Request, res: Response) => Promise<void>;
 
+// It uses the adapter design pattern
 export class ExpressRouteAdapter {
   static adapter(controller: Controller): Adapter {
     return async (req: Request, res: Response) => {

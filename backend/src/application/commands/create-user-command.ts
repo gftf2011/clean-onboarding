@@ -16,6 +16,7 @@ export namespace CreateUserCommand {
   };
 }
 
+// It uses the command design pattern
 export class CreateUserCommand implements ICommand {
   readonly operation: string = 'create-user';
 

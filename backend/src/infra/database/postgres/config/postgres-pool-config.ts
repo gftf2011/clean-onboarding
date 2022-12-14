@@ -3,6 +3,7 @@
  */
 import { Pool, PoolConfig } from 'pg';
 
+// It uses the builder design pattern
 export class PostgresPoolConfig {
   private pool: PoolConfig;
 

@@ -9,6 +9,7 @@ export namespace CheckUserPasswordQuery {
   };
 }
 
+// It uses the command design pattern
 export class CheckUserPasswordQuery implements IQuery {
   readonly operation: string = 'check-user-password';
 

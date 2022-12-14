@@ -13,6 +13,7 @@ import {
   MissingUrlParamsError,
 } from '../../errors';
 
+// It uses the template-method design pattern
 export abstract class HttpController implements Controller {
   public requiredParams: string[] = [];
 

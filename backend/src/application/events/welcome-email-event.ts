@@ -7,6 +7,7 @@ export namespace WelcomeEmailEvent {
   };
 }
 
+// It uses the command design pattern
 export class WelcomeEmailEvent implements IEvent {
   readonly operation: string = 'welcome-email';
 

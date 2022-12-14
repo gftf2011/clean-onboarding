@@ -4,6 +4,7 @@ import { PostgresPoolConfig } from '../config';
 
 import { Connection } from '../../../../application/contracts/database';
 
+// It uses the singleton design pattern
 export class PostgresConnection implements Connection {
   private static pool: Pool;
 

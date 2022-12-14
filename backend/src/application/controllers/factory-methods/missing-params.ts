@@ -1,13 +1,12 @@
 /* eslint-disable max-classes-per-file */
-/**
- * Presentation
- */
 import { HttpRequest } from '../../contracts/http';
 
+// It uses the factory-method design pattern
 interface ControllerMissingParamsProduct {
   operation: (request: HttpRequest, requiredParams: string[]) => string[];
 }
 
+// It uses the factory-method design pattern
 class ControllerMissingBodyParamsProduct
   implements ControllerMissingParamsProduct
 {
@@ -22,6 +21,7 @@ class ControllerMissingBodyParamsProduct
   }
 }
 
+// It uses the factory-method design pattern
 class ControllerMissingHeaderParamsProduct
   implements ControllerMissingParamsProduct
 {
@@ -36,6 +36,7 @@ class ControllerMissingHeaderParamsProduct
   }
 }
 
+// It uses the factory-method design pattern
 class ControllerMissingUrlParamsProduct
   implements ControllerMissingParamsProduct
 {
@@ -50,6 +51,7 @@ class ControllerMissingUrlParamsProduct
   }
 }
 
+// It uses the factory-method design pattern
 abstract class ControllerMissingParamsCreator {
   protected abstract factoryMethod(): ControllerMissingParamsProduct;
 
@@ -59,18 +61,21 @@ abstract class ControllerMissingParamsCreator {
   }
 }
 
+// It uses the factory-method design pattern
 export class ControllerMissingBodyParams extends ControllerMissingParamsCreator {
   protected factoryMethod(): ControllerMissingParamsProduct {
     return new ControllerMissingBodyParamsProduct();
   }
 }
 
+// It uses the factory-method design pattern
 export class ControllerMissingHeaderParams extends ControllerMissingParamsCreator {
   protected factoryMethod(): ControllerMissingParamsProduct {
     return new ControllerMissingHeaderParamsProduct();
   }
 }
 
+// It uses the factory-method design pattern
 export class ControllerMissingUrlParams extends ControllerMissingParamsCreator {
   protected factoryMethod(): ControllerMissingParamsProduct {
     return new ControllerMissingUrlParamsProduct();

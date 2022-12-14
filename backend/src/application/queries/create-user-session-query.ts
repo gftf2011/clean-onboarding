@@ -8,6 +8,7 @@ export namespace CreateUserSessionQuery {
   };
 }
 
+// It uses the command design pattern
 export class CreateUserSessionQuery implements IQuery {
   readonly operation: string = 'create-session';
 
