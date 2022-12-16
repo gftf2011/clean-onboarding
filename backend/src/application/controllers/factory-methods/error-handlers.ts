@@ -6,8 +6,6 @@ import {
   PasswordDoesNotMatchError,
   QueryNotRegisteredError,
   ServiceUnavailableError,
-  TokenExpiredError,
-  TokenSubjectDoesNotMatchError,
   UserAlreadyExistsError,
   UserDoNotExistsError,
 } from '../../errors';
@@ -68,16 +66,12 @@ class ApplicationErrorHandlerProduct implements ErrorHandlerProduct {
     ) {
       return serverError(error);
     }
-    if (
-      error instanceof UserDoNotExistsError ||
-      error instanceof TokenExpiredError
-    ) {
+    if (error instanceof UserDoNotExistsError) {
       return unauthorized(error);
     }
     if (
       error instanceof UserAlreadyExistsError ||
-      error instanceof PasswordDoesNotMatchError ||
-      error instanceof TokenSubjectDoesNotMatchError
+      error instanceof PasswordDoesNotMatchError
     ) {
       return forbidden(error);
     }
