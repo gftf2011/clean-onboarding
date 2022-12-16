@@ -6,4 +6,5 @@ export type TokenPayload = {
 
 export interface ITokenProvider {
   sign: (data: TokenPayload) => string;
+  verify: (token: string, secret: string) => any;
 }

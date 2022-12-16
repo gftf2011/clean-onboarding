@@ -1,3 +1,4 @@
+export * from './change-user-password-command-handler-factory';
 export * from './check-user-password-query-handler-factory';
 export * from './create-user-command-handler-factory';
 export * from './create-user-session-query-handler-factory';

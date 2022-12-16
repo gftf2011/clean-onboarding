@@ -8,4 +8,8 @@ server {
     location /sign-in {
         proxy_pass http://${SERVER_APP}:${SERVER_PORT}/api/V1/sign-in;
     }
+
+    location /change-user-password {
+        proxy_pass http://${SERVER_APP}:${SERVER_PORT}/api/V1/change-user-password;
+    }
 }

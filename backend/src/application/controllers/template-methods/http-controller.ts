@@ -1,7 +1,7 @@
 import {
-  ControllerMissingBodyParams,
-  ControllerMissingHeaderParams,
-  ControllerMissingUrlParams,
+  HttpMissingBodyParams,
+  HttpMissingHeaderParams,
+  HttpMissingUrlParams,
 } from '../factory-methods';
 import { ErrorHandlerInvoker } from '../strategies';
 
@@ -64,23 +64,20 @@ export abstract class HttpController implements Controller {
     request: HttpRequest,
     requiredParams: string[],
   ): string[] {
-    return new ControllerMissingBodyParams().getParams(request, requiredParams);
+    return new HttpMissingBodyParams().getParams(request, requiredParams);
   }
 
   private static getMissingUrlParams(
     request: HttpRequest,
     requiredParams: string[],
   ): string[] {
-    return new ControllerMissingUrlParams().getParams(request, requiredParams);
+    return new HttpMissingUrlParams().getParams(request, requiredParams);
   }
 
   private static getMissingHeaderParams(
     request: HttpRequest,
     requiredParams: string[],
   ): string[] {
-    return new ControllerMissingHeaderParams().getParams(
-      request,
-      requiredParams,
-    );
+    return new HttpMissingHeaderParams().getParams(request, requiredParams);
   }
 }

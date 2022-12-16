@@ -7,5 +7,7 @@ export * from './missing-url-params-error';
 export * from './password-does-not-match-error';
 export * from './query-not-registered-error';
 export * from './service-unavailable-error';
+export * from './token-expired-error';
+export * from './token-subject-does-not-match-error';
 export * from './user-already-exists-error';
 export * from './user-do-not-exists-error';

@@ -6,7 +6,6 @@ import request from 'supertest';
 import { RandomSSN } from 'ssn';
 
 import nodemailer from 'nodemailer';
-import jwt from 'jsonwebtoken';
 
 import { loader } from '../../src/main/loaders';
 import server from '../../src/main/config/server';
@@ -14,16 +13,13 @@ import broker from '../../src/main/config/broker';
 
 import { RabbitmqAdapter } from '../../src/infra/queue/rabbitmq/rabbitmq-adapter';
 import { PostgresAdapter } from '../../src/infra/database/postgres/postgres-adapter';
+import { HashProvider } from '../../src/infra/providers';
 
-import {
-  UserDoNotExistsError,
-  PasswordDoesNotMatchError,
-} from '../../src/application/errors';
+import { UserModel as User } from '../../src/domain/models';
 
 jest.mock('nodemailer');
-jest.mock('jsonwebtoken');
 
-describe('Sign-In Route', () => {
+describe('Change-User-Password Route', () => {
   let postgres: PostgresAdapter;
   let rabbitmq: RabbitmqAdapter;
 
@@ -43,6 +39,39 @@ describe('Sign-In Route', () => {
     await postgres.closeTransaction();
   };
 
+  const findUser = async (input: { email: string }): Promise<User> => {
+    await postgres.createClient();
+    await postgres.openTransaction();
+
+    const response = await postgres.query({
+      queryText: 'SELECT * FROM users_schema.users WHERE email LIKE $1',
+      values: [input.email],
+    });
+
+    await postgres.commit();
+    await postgres.closeTransaction();
+
+    return {
+      id: response.rows[0].id,
+      email: response.rows[0].email,
+      lastname: response.rows[0].lastname,
+      name: response.rows[0].name,
+      password: response.rows[0].password,
+      document: response.rows[0].document,
+      locale: response.rows[0].locale,
+      phone: response.rows[0].phone,
+    };
+  };
+
+  const hashPassword = async (
+    password: string,
+    salt: string,
+  ): Promise<string> => {
+    const hashProvider = new HashProvider();
+    const response = await hashProvider.encode(password, salt);
+    return response;
+  };
+
   const sleep = (timeout: number): Promise<void> => {
     return new Promise(resolve => {
       setTimeout(() => {
@@ -59,7 +88,7 @@ describe('Sign-In Route', () => {
     rabbitmq = new RabbitmqAdapter();
   });
 
-  describe('POST - /api/V1/sign-in', () => {
+  describe('POST - /api/V1/change-user-password', () => {
     beforeEach(() => {
       /**
        * Most important - it clears the cache
@@ -68,14 +97,7 @@ describe('Sign-In Route', () => {
       jest.resetAllMocks();
     });
 
-    it('should return 200 with a valid account', async () => {
-      const signSpy = jest
-        .spyOn(jwt, 'sign')
-        .mockImplementationOnce(
-          (_payload: any, _secret: any, _options: any) => {
-            return `token_fake`;
-          },
-        );
+    it('should return 204 when password is changed', async () => {
       const sendMailSpy = jest.fn();
 
       (nodemailer.createTransport as any).mockReturnValue({
@@ -91,11 +113,14 @@ describe('Sign-In Route', () => {
         phone: faker.phone.phoneNumber('##########'),
         document: new RandomSSN().value().toString(),
       };
+      const userWithNewPassword = {
+        ...user,
+        password: '12345670zZ#',
+      };
 
       const signUpResponse = await request(server)
         .post('/api/V1/sign-up')
         .send(user);
-
       const signInResponse = await request(server)
         .post('/api/V1/sign-in')
         .send({
@@ -105,72 +130,32 @@ describe('Sign-In Route', () => {
 
       await sleep(500);
 
+      const userFound = await findUser({ email: user.email });
+      const changeUserPasswordResponse = await request(server)
+        .post('/api/V1/change-user-password')
+        .send({
+          password: userWithNewPassword.password,
+        })
+        .set('Authorization', signInResponse.body.auth);
+      const userFoundAfterPasswordChange = await findUser({
+        email: userWithNewPassword.email,
+      });
+
       expect(sendMailSpy).toHaveBeenCalledTimes(1);
-      expect(signSpy).toHaveBeenCalledTimes(1);
       expect(signUpResponse.status).toBe(204);
       expect(signInResponse.status).toBe(200);
-      expect(signInResponse.body).toEqual({
-        auth: `Bearer token_fake`,
-      });
-    });
-
-    it('should return 401 if user is not found', async () => {
-      const account = {
-        email: 'test@mail.com',
-        password: '12345678xX@',
-      };
-      const error = new UserDoNotExistsError();
-
-      const response = await request(server)
-        .post('/api/V1/sign-in')
-        .send(account);
-
-      expect(response.status).toBe(401);
-      expect(response.body).toEqual({
-        message: error.message,
-        name: error.name,
-      });
-    });
-
-    it('should return 403 if user password does not match', async () => {
-      const sendMailSpy = jest.fn();
-
-      (nodemailer.createTransport as any).mockReturnValue({
-        sendMail: sendMailSpy,
-      });
-
-      const user = {
-        email: 'test@mail.com',
-        password: '12345678xX@',
-        name: 'test',
-        lastname: 'test',
-        locale: 'UNITED_STATES_OF_AMERICA',
-        phone: faker.phone.phoneNumber('##########'),
-        document: new RandomSSN().value().toString(),
-      };
-      const account = {
-        email: user.email,
-        password: '12345670zZ$',
-      };
-      const error = new PasswordDoesNotMatchError();
-
-      const signUpResponse = await request(server)
-        .post('/api/V1/sign-up')
-        .send(user);
-
-      await sleep(500);
-
-      const signInResponse = await request(server)
-        .post('/api/V1/sign-in')
-        .send(account);
-
-      expect(signUpResponse.status).toBe(204);
-
-      expect(signInResponse.status).toBe(403);
-      expect(signInResponse.body).toEqual({
-        message: error.message,
-        name: error.name,
-      });
+      expect(signInResponse.body).toBeDefined();
+      expect(changeUserPasswordResponse.status).toBe(204);
+      expect(userFound.id).toBe(userFoundAfterPasswordChange.id);
+      expect(userFound.password).toBe(
+        await hashPassword(user.password, `${user.email}$${user.document}`),
+      );
+      expect(userFoundAfterPasswordChange.password).toBe(
+        await hashPassword(
+          userWithNewPassword.password,
+          `${userWithNewPassword.email}$${userWithNewPassword.document}`,
+        ),
+      );
     });
 
     afterEach(async () => {

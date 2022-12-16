@@ -14,4 +14,8 @@ export class TokenProvider implements ITokenProvider {
       subject: data.subject,
     });
   }
+
+  public verify(token: string, secret: string): any {
+    return jwt.verify(token, secret);
+  }
 }
