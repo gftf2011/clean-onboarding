@@ -7,7 +7,7 @@ import { ICommandBus, IQueryBus } from '../contracts/bus';
 import { ChangeUserPasswordCommand, CreateUserCommand } from '../commands';
 import {
   CheckUserPasswordQuery,
-  CreateUserSessionQuery,
+  GetUserSessionQuery,
   FindUserByEmailQuery,
   FindUserQuery,
 } from '../queries';
@@ -77,7 +77,7 @@ export class UserService implements IUserService {
     secret: string,
   ): Promise<string> {
     const response = await this.queryBus.execute(
-      new CreateUserSessionQuery({
+      new GetUserSessionQuery({
         id: userId,
         secret,
         email: userEmail,

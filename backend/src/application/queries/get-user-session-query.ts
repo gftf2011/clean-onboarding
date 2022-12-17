@@ -1,6 +1,6 @@
 import { IQuery } from '../contracts/queries';
 
-export namespace CreateUserSessionQuery {
+export namespace GetUserSessionQuery {
   export type Data = {
     id: string;
     email: string;
@@ -9,8 +9,8 @@ export namespace CreateUserSessionQuery {
 }
 
 // It uses the command design pattern
-export class CreateUserSessionQuery implements IQuery {
+export class GetUserSessionQuery implements IQuery {
   readonly operation: string = 'create-session';
 
-  constructor(public readonly data: CreateUserSessionQuery.Data) {}
+  constructor(public readonly data: GetUserSessionQuery.Data) {}
 }

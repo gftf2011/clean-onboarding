@@ -1,4 +1,4 @@
-import { CreateUserSessionQuery } from '../../queries';
+import { GetUserSessionQuery } from '../../queries';
 import { IQueryHandler } from '../../contracts/handlers';
 import {
   ITokenProvider,
@@ -6,7 +6,7 @@ import {
   NAMESPACES,
 } from '../../contracts/providers';
 
-export class CreateUserSessionQueryHandler implements IQueryHandler<string> {
+export class GetUserSessionQueryHandler implements IQueryHandler<string> {
   readonly operation: string = 'create-session';
 
   constructor(
@@ -14,7 +14,7 @@ export class CreateUserSessionQueryHandler implements IQueryHandler<string> {
     private readonly uuid: IUUIDProvider,
   ) {}
 
-  public async handle(action: CreateUserSessionQuery): Promise<string> {
+  public async handle(action: GetUserSessionQuery): Promise<string> {
     const response = this.token.sign({
       payload: { id: action.data.id },
       secret: action.data.secret,

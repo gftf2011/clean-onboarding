@@ -1,8 +1,8 @@
 import faker from 'faker';
 
-import { CreateUserSessionQuery } from '../../../../src/application/queries';
+import { GetUserSessionQuery } from '../../../../src/application/queries';
 
-describe('Create User Session Query', () => {
+describe('Get User Session Query', () => {
   it('should return query', () => {
     const id = faker.datatype.uuid();
     const email = faker.internet.email();
@@ -14,7 +14,7 @@ describe('Create User Session Query', () => {
       secret,
     };
 
-    const query = new CreateUserSessionQuery(input);
+    const query = new GetUserSessionQuery(input);
 
     expect(query.operation).toBe('create-session');
     expect(query.data).toEqual(input);

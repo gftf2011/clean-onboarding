@@ -5,7 +5,7 @@ import { PostgresAdapter } from '../../../infra/database/postgres/postgres-adapt
 
 import {
   checkUserPasswordQueryHandlerFactory,
-  createUserSessionQueryHandlerFactory,
+  getUserSessionQueryHandlerFactory,
   findUserByEmailQueryHandlerFactory,
   findUserQueryHandlerFactory,
 } from '../handlers';
@@ -13,7 +13,7 @@ import {
 export const queryBusFactory = (postgres: PostgresAdapter): IQueryBus => {
   const handlers = [
     checkUserPasswordQueryHandlerFactory(),
-    createUserSessionQueryHandlerFactory(),
+    getUserSessionQueryHandlerFactory(),
     findUserByEmailQueryHandlerFactory(postgres),
     findUserQueryHandlerFactory(postgres),
   ];
