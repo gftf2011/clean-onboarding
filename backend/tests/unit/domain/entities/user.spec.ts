@@ -202,15 +202,15 @@ describe('User Entity', () => {
       },
     );
 
-    const user = response.value as User;
+    const user = (response.value as User).get();
 
     expect(response.isRight()).toBeTruthy();
-    expect(user.get().id).toBe('00000000-0000-0000-0000-000000000000');
-    expect(user.get().document.get()).toBe(document);
-    expect(user.get().email.get()).toBe(email);
-    expect(user.get().lastname.get()).toBe('test');
-    expect(user.get().name.get()).toBe('test');
-    expect(user.get().password.get()).toBe('12345678aB?');
-    expect(user.get().phone.get()).toBe('0000000000');
+    expect(user.id).toBe('00000000-0000-0000-0000-000000000000');
+    expect(user.document).toBe(document);
+    expect(user.email).toBe(email);
+    expect(user.lastname).toBe('test');
+    expect(user.name).toBe('test');
+    expect(user.password).toBe('12345678aB?');
+    expect(user.phone).toBe('0000000000');
   });
 });

@@ -1,30 +1,30 @@
 /* eslint-disable no-restricted-syntax */
-import { IQuery } from '../../../application/contracts/queries';
-import { IQueryHandler } from '../../../application/contracts/handlers';
-import { IQueryBus } from '../../../application/contracts/bus';
-import { QueryNotRegisteredError } from '../../../application/errors';
+import { Action } from '../../../application/contracts/actions';
+import { Handler } from '../../../application/contracts/handlers';
+import { QueryBus } from '../../../application/contracts/bus';
+import { ActionNotRegisteredError } from '../../../application/errors';
 
-export class QueryBus implements IQueryBus {
-  private mapHandlers: Map<string, IQueryHandler>;
+export class QueryBusImpl implements QueryBus {
+  private mapHandlers: Map<string, Handler>;
 
-  constructor(private readonly queryHandlers: IQueryHandler[]) {
+  constructor(private readonly handlers: Handler[]) {
     this.registerHandlers();
   }
 
   private registerHandlers(): void {
-    this.mapHandlers = new Map<string, IQueryHandler>();
-    for (const handler of this.queryHandlers) {
+    this.mapHandlers = new Map<string, Handler>();
+    for (const handler of this.handlers) {
       this.mapHandlers.set(handler.operation, handler);
     }
   }
 
-  public async execute(action: IQuery): Promise<any> {
-    const handler = this.mapHandlers.get(action.operation);
+  public async execute(query: Action): Promise<any> {
+    const handler = this.mapHandlers.get(query.operation);
 
     if (!handler) {
-      throw new QueryNotRegisteredError(action);
+      throw new ActionNotRegisteredError(query);
     }
 
-    return handler.handle(action);
+    return handler.handle(query);
   }
 }

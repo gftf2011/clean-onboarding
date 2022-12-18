@@ -3,24 +3,25 @@ import { AccountDTO, UserDTO } from '../../domain/dtos';
 import { UserModel } from '../../domain/models';
 
 import { IUserService } from '../contracts/services';
-import { ICommandBus, IQueryBus } from '../contracts/bus';
-import { ChangeUserPasswordCommand, CreateUserCommand } from '../commands';
+import { CommandBus, QueryBus } from '../contracts/bus';
 import {
-  CheckUserPasswordQuery,
-  GetUserSessionQuery,
-  FindUserByEmailQuery,
-  FindUserQuery,
-} from '../queries';
+  CreateUserAction,
+  ChangeUserPasswordAction,
+  CheckUserPasswordAction,
+  GetUserSessionAction,
+  FindUserByEmailAction,
+  FindUserAction,
+} from '../actions';
 
 export class UserService implements IUserService {
   constructor(
-    private readonly commandBus: ICommandBus,
-    private readonly queryBus: IQueryBus,
+    private readonly commandBus: CommandBus,
+    private readonly queryBus: QueryBus,
   ) {}
 
   public async findByEmail(email: string): Promise<UserModel> {
     const response = await this.queryBus.execute(
-      new FindUserByEmailQuery({
+      new FindUserByEmailAction({
         email,
       }),
     );
@@ -30,7 +31,7 @@ export class UserService implements IUserService {
 
   public async find(id: string): Promise<UserModel> {
     const response = await this.queryBus.execute(
-      new FindUserQuery({
+      new FindUserAction({
         id,
       }),
     );
@@ -40,7 +41,7 @@ export class UserService implements IUserService {
 
   public async save(input: UserDTO): Promise<void> {
     await this.commandBus.execute(
-      new CreateUserCommand({
+      new CreateUserAction({
         locale: input.locale as Nationalities,
         user: {
           document: input.document,
@@ -56,7 +57,7 @@ export class UserService implements IUserService {
 
   public async changeUserPassword(id: string, user: UserDTO): Promise<void> {
     await this.commandBus.execute(
-      new ChangeUserPasswordCommand({
+      new ChangeUserPasswordAction({
         user: {
           id,
           document: user.document,
@@ -77,7 +78,7 @@ export class UserService implements IUserService {
     secret: string,
   ): Promise<string> {
     const response = await this.queryBus.execute(
-      new GetUserSessionQuery({
+      new GetUserSessionAction({
         id: userId,
         secret,
         email: userEmail,
@@ -93,7 +94,7 @@ export class UserService implements IUserService {
     hashedPassword: string,
   ): Promise<boolean> {
     const response = await this.queryBus.execute(
-      new CheckUserPasswordQuery({
+      new CheckUserPasswordAction({
         account,
         document,
         hashedPassword,

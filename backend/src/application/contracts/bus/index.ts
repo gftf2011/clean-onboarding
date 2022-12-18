@@ -1,14 +1,9 @@
-import { ICommand } from '../commands';
-import { IQuery } from '../queries';
+import { Action } from '../actions';
 
-export interface IBus {
-  execute: (data: any) => Promise<any>;
+export interface QueryBus<T = any> {
+  execute: (action: Action) => Promise<T>;
 }
 
-export interface ICommandBus extends IBus {
-  execute: (command: ICommand) => Promise<void>;
-}
-
-export interface IQueryBus extends IBus {
-  execute: (data: IQuery) => Promise<any>;
+export interface CommandBus {
+  execute: (action: Action) => Promise<void>;
 }

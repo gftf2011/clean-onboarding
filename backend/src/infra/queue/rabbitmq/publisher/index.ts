@@ -1,1 +1,1 @@
-export * from './rabbitmq-event-publisher';
+export * from './rabbitmq-action-publisher';

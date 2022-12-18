@@ -1,10 +1,9 @@
 /* eslint-disable max-classes-per-file */
 import {
   ApplicationError,
-  CommandNotRegisteredError,
+  ActionNotRegisteredError,
   DatabaseError,
   PasswordDoesNotMatchError,
-  QueryNotRegisteredError,
   ServiceUnavailableError,
   UserAlreadyExistsError,
   UserDoNotExistsError,
@@ -61,8 +60,7 @@ class ApplicationErrorHandlerProduct implements ErrorHandlerProduct {
     }
     if (
       error instanceof DatabaseError ||
-      error instanceof CommandNotRegisteredError ||
-      error instanceof QueryNotRegisteredError
+      error instanceof ActionNotRegisteredError
     ) {
       return serverError(error);
     }

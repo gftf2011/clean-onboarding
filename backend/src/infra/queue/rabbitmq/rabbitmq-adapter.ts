@@ -14,9 +14,9 @@ export class RabbitmqAdapter implements IQueue {
       .createChannel();
   }
 
-  public async consume(event: string, callback: Function): Promise<void> {
-    await this.channel.assertQueue(event, { durable: true });
-    await this.channel.consume(event, async (msg: ConsumeMessage) => {
+  public async consume(action: string, callback: Function): Promise<void> {
+    await this.channel.assertQueue(action, { durable: true });
+    await this.channel.consume(action, async (msg: ConsumeMessage) => {
       if (msg) {
         const input = JSON.parse(msg.content.toString());
         await callback(input);
@@ -25,9 +25,9 @@ export class RabbitmqAdapter implements IQueue {
     });
   }
 
-  public async publish(event: string, data: any): Promise<void> {
-    await this.channel.assertQueue(event, { durable: true });
-    this.channel.sendToQueue(event, Buffer.from(JSON.stringify(data)), {
+  public async publish(action: string, data: any): Promise<void> {
+    await this.channel.assertQueue(action, { durable: true });
+    this.channel.sendToQueue(action, Buffer.from(JSON.stringify(data)), {
       persistent: true,
     });
   }

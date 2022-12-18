@@ -1,22 +1,22 @@
 import { IQueue } from '../../../application/contracts/queue';
-import { ICommandBus } from '../../../application/contracts/bus';
+import { CommandBus } from '../../../application/contracts/bus';
 
-import { CommandBus } from '../../../infra/bus/commands';
+import { CommandBusImpl } from '../../../infra/bus/commands';
 import { PostgresAdapter } from '../../../infra/database/postgres/postgres-adapter';
 
 import {
-  changeUserPasswordCommandHandlerFactory,
-  createUserCommandHandlerFactory,
+  changeUserPasswordHandlerFactory,
+  createUserHandlerFactory,
 } from '../handlers';
 
 export const commandBusFactory = (
   postgres: PostgresAdapter,
   queue: IQueue,
-): ICommandBus => {
+): CommandBus => {
   const handlers = [
-    createUserCommandHandlerFactory(postgres, queue),
-    changeUserPasswordCommandHandlerFactory(postgres),
+    createUserHandlerFactory(postgres, queue),
+    changeUserPasswordHandlerFactory(postgres),
   ];
-  const bus = new CommandBus(handlers);
+  const bus = new CommandBusImpl(handlers);
   return bus;
 };

@@ -12,6 +12,7 @@ import {
   ID,
 } from '../../value-objects';
 import { InvalidPasswordError } from '../../errors';
+import { UserDTO } from '../../dtos';
 
 interface Props {
   name: Name;
@@ -37,20 +38,25 @@ interface Options {
 }
 
 export class User {
-  private readonly value: { id: string } & Props;
-
   private constructor(
     private readonly id: string,
     private readonly props: Props,
-  ) {
-    this.value = {
-      id: this.id,
-      ...this.props,
-    };
-  }
+    private readonly locale: string,
+  ) {}
 
-  public get(): { id: string } & Props {
-    return this.value;
+  public get(): UserDTO {
+    const { document, email, lastname, name, password, phone } = this.props;
+    const user = {
+      id: this.id,
+      name: name.get(),
+      phone: phone.get(),
+      lastname: lastname.get(),
+      document: document.get(),
+      email: email.get(),
+      password: password.get(),
+      locale: this.locale,
+    };
+    return user;
   }
 
   public static create(
@@ -107,14 +113,18 @@ export class User {
     }
 
     return right(
-      new User(idOrError.value.get(), {
-        email: emailOrError.value,
-        lastname: lastnameOrError.value,
-        name: nameOrError.value,
-        password: passwordOrError.value,
-        document: documentOrError.value,
-        phone: phoneOrError.value,
-      }),
+      new User(
+        idOrError.value.get(),
+        {
+          email: emailOrError.value,
+          lastname: lastnameOrError.value,
+          name: nameOrError.value,
+          password: passwordOrError.value,
+          document: documentOrError.value,
+          phone: phoneOrError.value,
+        },
+        options.nationality,
+      ),
     );
   }
 }
