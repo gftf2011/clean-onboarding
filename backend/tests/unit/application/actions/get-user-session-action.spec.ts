@@ -14,9 +14,9 @@ describe('Get User Session Action', () => {
       secret,
     };
 
-    const query = new GetUserSessionAction(input);
+    const action = new GetUserSessionAction(input);
 
-    expect(query.operation).toBe('get-create-session');
-    expect(query.data).toEqual(input);
+    expect(action.operation).toBe('get-create-session');
+    expect(action.data).toEqual(input);
   });
 });

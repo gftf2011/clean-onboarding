@@ -10,9 +10,9 @@ describe('Find User Action', () => {
       id,
     };
 
-    const query = new FindUserAction(input);
+    const action = new FindUserAction(input);
 
-    expect(query.operation).toBe('find-user');
-    expect(query.data).toEqual(input);
+    expect(action.operation).toBe('find-user');
+    expect(action.data).toEqual(input);
   });
 });

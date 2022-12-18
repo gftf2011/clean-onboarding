@@ -10,9 +10,9 @@ describe('Find User by Email Action', () => {
       email,
     };
 
-    const query = new FindUserByEmailAction(input);
+    const action = new FindUserByEmailAction(input);
 
-    expect(query.operation).toBe('find-user-by-email');
-    expect(query.data).toEqual(input);
+    expect(action.operation).toBe('find-user-by-email');
+    expect(action.data).toEqual(input);
   });
 });

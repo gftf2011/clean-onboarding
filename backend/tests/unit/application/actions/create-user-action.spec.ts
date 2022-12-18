@@ -27,9 +27,9 @@ describe('Create User Action', () => {
       },
     };
 
-    const command = new CreateUserAction(input);
+    const action = new CreateUserAction(input);
 
-    expect(command.operation).toBe('create-user');
-    expect(command.data).toEqual(input);
+    expect(action.operation).toBe('create-user');
+    expect(action.data).toEqual(input);
   });
 });

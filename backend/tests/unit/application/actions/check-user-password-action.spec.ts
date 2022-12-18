@@ -19,9 +19,9 @@ describe('Check User Password Action', () => {
       hashedPassword,
     };
 
-    const query = new CheckUserPasswordAction(input);
+    const action = new CheckUserPasswordAction(input);
 
-    expect(query.operation).toBe('check-user-password');
-    expect(query.data).toEqual(input);
+    expect(action.operation).toBe('check-user-password');
+    expect(action.data).toEqual(input);
   });
 });
