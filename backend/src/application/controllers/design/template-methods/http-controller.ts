@@ -5,13 +5,13 @@ import {
 } from '../factory-methods';
 import { ErrorHandlerInvoker } from '../strategies';
 
-import { HttpRequest, HttpResponse } from '../../contracts/http';
-import { Controller } from '../../contracts/controllers';
+import { HttpRequest, HttpResponse } from '../../../contracts/http';
+import { Controller } from '../../../contracts/controllers';
 import {
   MissingBodyParamsError,
   MissingHeaderParamsError,
   MissingUrlParamsError,
-} from '../../errors';
+} from '../../../errors';
 
 // It uses the template-method design pattern
 export abstract class HttpController implements Controller {

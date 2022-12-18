@@ -8,8 +8,8 @@ import {
   ServiceUnavailableError,
   UserAlreadyExistsError,
   UserDoNotExistsError,
-} from '../../errors';
-import { HttpResponse } from '../../contracts/http';
+} from '../../../errors';
+import { HttpResponse } from '../../../contracts/http';
 import {
   badRequest,
   forbidden,
@@ -17,7 +17,7 @@ import {
   serviceUnavailableError,
   unauthorized,
   unknown,
-} from '../utils';
+} from '../../utils';
 
 import {
   DomainError,
@@ -28,7 +28,7 @@ import {
   InvalidNameError,
   InvalidPasswordError,
   InvalidPhoneError,
-} from '../../../domain/errors';
+} from '../../../../domain/errors';
 
 // It uses the factory-method design pattern
 interface ErrorHandlerProduct {

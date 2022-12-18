@@ -1,9 +1,9 @@
 import { HttpMissingHeaderParams } from '../factory-methods';
 import { ErrorHandlerInvoker } from '../strategies';
 
-import { HttpRequest, HttpResponse } from '../../contracts/http';
-import { Middleware } from '../../contracts/middlewares';
-import { MissingHeaderParamsError } from '../../errors';
+import { HttpRequest, HttpResponse } from '../../../contracts/http';
+import { Middleware } from '../../../contracts/middlewares';
+import { MissingHeaderParamsError } from '../../../errors';
 
 export abstract class HttpMiddleware implements Middleware {
   public requiredHeaderParams: string[] = [];

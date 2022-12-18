@@ -103,7 +103,6 @@ describe('Change-User-Password Route', () => {
       (nodemailer.createTransport as any).mockReturnValue({
         sendMail: sendMailSpy,
       });
-
       const user = {
         email: 'test@mail.com',
         password: '12345678xX@',

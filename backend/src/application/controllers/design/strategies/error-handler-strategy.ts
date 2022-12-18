@@ -1,8 +1,8 @@
 /* eslint-disable max-classes-per-file */
-import { DomainError } from '../../../domain/errors';
+import { DomainError } from '../../../../domain/errors';
 
-import { ApplicationError } from '../../errors';
-import { HttpResponse } from '../../contracts/http';
+import { ApplicationError } from '../../../errors';
+import { HttpResponse } from '../../../contracts/http';
 import {
   ApplicationErrorHandler,
   DomainErrorHandler,

@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
-import { ApplicationError } from '../../errors';
-import { HttpResponse } from '../../contracts/http';
+import { ApplicationError } from '../../../errors';
+import { HttpResponse } from '../../../contracts/http';
 import { ApplicationErrorHandler } from '../factory-methods';
 
 // It uses the strategy design pattern

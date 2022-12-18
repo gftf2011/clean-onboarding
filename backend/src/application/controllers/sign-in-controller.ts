@@ -3,7 +3,7 @@ import { AccountDTO } from '../../domain/dtos';
 import { HttpRequest, HttpResponse } from '../contracts/http';
 import { IUserService } from '../contracts/services';
 import { PasswordDoesNotMatchError, UserDoNotExistsError } from '../errors';
-import { HttpController } from './template-methods';
+import { HttpController } from './design/template-methods';
 import { ok } from './utils';
 
 export namespace SignInController {

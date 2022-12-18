@@ -1,19 +1,26 @@
 import { IUserRepository } from '../../domain/repositories';
 
+import { IValidator } from '../contracts/validation';
 import { HttpRequest, HttpResponse } from '../contracts/http';
 import {
   ITokenProvider,
   IUUIDProvider,
   NAMESPACES,
 } from '../contracts/providers';
-import { HttpMiddleware } from './template-methods';
+
+import {
+  TokenExpiredValidatorCreator,
+  TokenSubjectValidatorCreator,
+} from './design/factory-methods';
+import { TokenValidationComposite } from './design/composite';
+import { HttpMiddleware } from './design/template-methods';
+import { ok } from './utils';
+
 import {
   TokenExpiredError,
   TokenSubjectDoesNotMatchError,
   UserDoNotExistsError,
 } from '../errors';
-
-import { ok } from './utils';
 
 export namespace AuthMiddleware {
   export type Body = any;
@@ -21,7 +28,13 @@ export namespace AuthMiddleware {
   export type Header = { authorization: string };
 }
 
+interface ValidationFields {
+  sub: string;
+}
+
 export class AuthMiddleware extends HttpMiddleware {
+  private validator: IValidator;
+
   public override requiredHeaderParams: string[] = ['authorization'];
 
   constructor(
@@ -33,6 +46,29 @@ export class AuthMiddleware extends HttpMiddleware {
     super();
   }
 
+  private setupValidators(token: any, fields: ValidationFields): void {
+    const { sub } = fields;
+    const tokenSubjectValidator = new TokenSubjectValidatorCreator(token, sub);
+    const tokenExpiredValidator = new TokenExpiredValidatorCreator(token);
+    const validations = [tokenSubjectValidator, tokenExpiredValidator];
+    this.validator = new TokenValidationComposite(validations);
+  }
+
+  private validateToken(): void {
+    this.validator.validate();
+  }
+
+  private cleanToken(token: string): string {
+    return token.split('Bearer ')[1];
+  }
+
+  private createSubject(userEmail: string): string {
+    return this.uuidProvider.generateV5(
+      userEmail,
+      NAMESPACES.USER_ACCESS_TOKEN,
+    );
+  }
+
   public async perform(
     request: HttpRequest<
       AuthMiddleware.Url,
@@ -40,22 +76,14 @@ export class AuthMiddleware extends HttpMiddleware {
       AuthMiddleware.Header
     >,
   ): Promise<HttpResponse> {
-    const timestamp = Date.now();
-    const token = request.headers.authorization.split('Bearer ')[1];
-    const accessToken = this.tokenProvider.verify(token, this.secret);
-    const user = await this.userRepo.find(accessToken.id);
-    const subject = this.uuidProvider.generateV5(
-      user.email,
-      NAMESPACES.USER_ACCESS_TOKEN,
-    );
-    const tokenExpirationTimeInMilliseconds = accessToken.exp * 1000;
-
-    if (timestamp > tokenExpirationTimeInMilliseconds)
-      throw new TokenExpiredError();
+    const token = this.cleanToken(request.headers.authorization);
+    const jwtToken = this.tokenProvider.verify(token, this.secret);
+    const user = await this.userRepo.find(jwtToken.id);
     if (!user) throw new UserDoNotExistsError();
-    if (subject !== accessToken.sub)
-      throw new TokenSubjectDoesNotMatchError(subject);
+    const sub = this.createSubject(user.email);
 
-    return ok(accessToken.id);
+    this.setupValidators(jwtToken, { sub });
+    this.validateToken();
+    return ok(jwtToken.id);
   }
 }

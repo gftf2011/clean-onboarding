@@ -1,10 +1,10 @@
-import { Middleware } from '../../contracts/middlewares';
-import { IDatabase } from '../../contracts/database';
+import { Controller } from '../../../contracts/controllers';
+import { IDatabase } from '../../../contracts/database';
 
 // It uses the decorator design pattern
-export class TransactionMiddleware implements Middleware {
+export class TransactionController implements Controller {
   constructor(
-    private readonly decoratee: Middleware,
+    private readonly decoratee: Controller,
     private readonly database: IDatabase,
   ) {}
 

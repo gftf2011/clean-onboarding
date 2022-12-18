@@ -1,5 +1,5 @@
 /* eslint-disable max-classes-per-file */
-import { HttpRequest } from '../../contracts/http';
+import { HttpRequest } from '../../../contracts/http';
 
 // It uses the factory-method design pattern
 interface HttpMissingParamsProduct {

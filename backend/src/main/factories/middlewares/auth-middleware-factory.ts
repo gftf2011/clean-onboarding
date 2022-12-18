@@ -1,6 +1,6 @@
 import { Middleware } from '../../../application/contracts/middlewares';
 import { AuthMiddleware } from '../../../application/middlewares';
-import { TransactionMiddleware } from '../../../application/middlewares/decorators';
+import { TransactionMiddleware } from '../../../application/middlewares/design/decorators';
 
 import { UserRepository } from '../../../infra/repositories';
 import { UserDao } from '../../../infra/dao';

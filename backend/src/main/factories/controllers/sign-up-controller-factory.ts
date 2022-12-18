@@ -1,5 +1,5 @@
 import { Controller } from '../../../application/contracts/controllers';
-import { TransactionController } from '../../../application/controllers/decorators';
+import { TransactionController } from '../../../application/controllers/design/decorators';
 import { UserService } from '../../../application/services';
 import { SignUpController } from '../../../application/controllers';
 

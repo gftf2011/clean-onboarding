@@ -6,15 +6,15 @@ import {
   TokenExpiredError,
   TokenSubjectDoesNotMatchError,
   UserDoNotExistsError,
-} from '../../errors';
-import { HttpResponse } from '../../contracts/http';
+} from '../../../errors';
+import { HttpResponse } from '../../../contracts/http';
 import {
   forbidden,
   serverError,
   serviceUnavailableError,
   unauthorized,
   unknown,
-} from '../utils';
+} from '../../utils';
 
 // It uses the factory-method design pattern
 interface ErrorHandlerProduct {
