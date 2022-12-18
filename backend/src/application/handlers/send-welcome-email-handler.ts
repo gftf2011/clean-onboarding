@@ -2,12 +2,12 @@ import path from 'path';
 
 import { SendWelcomeEmailAction } from '../actions';
 import { Handler } from '../contracts/handlers';
-import { IEmailProvider } from '../contracts/providers';
+import { EmailProvider } from '../contracts/providers';
 
 export class SendWelcomeEmailHandler implements Handler {
   readonly operation: string = 'send-welcome-email';
 
-  constructor(private readonly email: IEmailProvider) {}
+  constructor(private readonly email: EmailProvider) {}
 
   private resolveFilePath(): string {
     return path.resolve(

@@ -5,21 +5,21 @@ import { TransactionMiddleware } from '../../../application/middlewares/design/d
 import { UserRepository } from '../../../infra/repositories';
 import { UserDao } from '../../../infra/dao';
 import { PostgresAdapter } from '../../../infra/database/postgres/postgres-adapter';
-import { TokenProvider, UUIDProvider } from '../../../infra/providers';
+import { JWTTokenProvider, UUIDProvider } from '../../../infra/providers';
 import {
-  DatabaseQueryCircuitBreaker,
-  DatabaseStatementCircuitBreaker,
+  DatabaseQueryCircuitBreakerProxy,
+  DatabaseStatementCircuitBreakerProxy,
 } from '../../../infra/database/postgres/circuit-breaker';
 
 export const authMiddlewareFactory = (): Middleware => {
   const postgres = new PostgresAdapter();
 
   const uuidProvider = new UUIDProvider();
-  const tokenProvider = new TokenProvider('1h');
+  const tokenProvider = new JWTTokenProvider('1h');
 
   const userDao = new UserDao({
-    read: new DatabaseQueryCircuitBreaker(postgres),
-    write: new DatabaseStatementCircuitBreaker(postgres),
+    read: new DatabaseQueryCircuitBreakerProxy(postgres),
+    write: new DatabaseStatementCircuitBreakerProxy(postgres),
   });
 
   const userRepo = new UserRepository({

@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/ban-types */
-export interface IQueueConnection {
+export interface QueueConnection {
   createChannel: () => Promise<void>;
   closeChannel: () => Promise<void>;
   close: () => Promise<void>;
 }
 
-export interface IQueuePublisher {
+export interface QueuePublisher {
   publish: (event: string, data: any) => Promise<void>;
 }
 
-export interface IQueueConsumer {
+export interface QueueConsumer {
   consume: (event: string, callback: Function) => Promise<void>;
 }
 
-export type IQueue = IQueueConnection & IQueueConsumer & IQueuePublisher;
+export type Queue = QueueConnection & QueueConsumer & QueuePublisher;

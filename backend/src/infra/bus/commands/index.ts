@@ -4,7 +4,7 @@ import { Handler } from '../../../application/contracts/handlers';
 import { CommandBus } from '../../../application/contracts/bus';
 import { ActionNotRegisteredError } from '../../../application/errors';
 
-export class CommandBusImpl implements CommandBus {
+export class CommandBusMediator implements CommandBus {
   private mapHandlers: Map<string, Handler>;
 
   constructor(private readonly handlers: Handler[]) {

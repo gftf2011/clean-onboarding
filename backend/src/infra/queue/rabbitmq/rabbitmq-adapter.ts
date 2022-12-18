@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-types */
 import { ConsumeMessage, Channel } from 'amqplib';
 
-import { IQueue } from '../../../application/contracts/queue';
+import { Queue } from '../../../application/contracts/queue';
 
 import { RabbitmqConnection } from './connection';
 
-export class RabbitmqAdapter implements IQueue {
+export class RabbitmqAdapter implements Queue {
   private channel: Channel;
 
   public async createChannel(): Promise<void> {

@@ -6,13 +6,13 @@ import { IUserRepository } from '../../domain/repositories';
 
 import { Handler } from '../contracts/handlers';
 import { ChangeUserPasswordAction } from '../actions';
-import { IHashProvider } from '../contracts/providers';
+import { HashProvider } from '../contracts/providers';
 
 export class ChangeUserPasswordHandler implements Handler<void> {
   readonly operation: string = 'change-user-password';
 
   constructor(
-    private readonly hash: IHashProvider,
+    private readonly hash: HashProvider,
     private readonly userRepo: IUserRepository,
   ) {}
 

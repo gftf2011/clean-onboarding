@@ -1,11 +1,11 @@
-import { IQueue } from '../../../../application/contracts/queue';
+import { Queue } from '../../../../application/contracts/queue';
 import {
   Action,
   ActionPublisher,
 } from '../../../../application/contracts/actions';
 
 export class RabbitmqActionPublisher implements ActionPublisher {
-  constructor(private readonly queue: IQueue) {}
+  constructor(private readonly queue: Queue) {}
 
   public async publish(action: Action): Promise<void> {
     try {

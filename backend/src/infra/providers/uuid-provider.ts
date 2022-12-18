@@ -1,11 +1,8 @@
 import { v4, v5 } from 'uuid';
 
-import {
-  IUUIDProvider,
-  NAMESPACES,
-} from '../../application/contracts/providers';
+import { IDProvider, NAMESPACES } from '../../application/contracts/providers';
 
-export class UUIDProvider implements IUUIDProvider {
+export class UUIDProvider implements IDProvider {
   public generateV4(): string {
     return v4();
   }

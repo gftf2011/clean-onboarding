@@ -4,7 +4,7 @@ import { Handler } from '../../../application/contracts/handlers';
 import { QueryBus } from '../../../application/contracts/bus';
 import { ActionNotRegisteredError } from '../../../application/errors';
 
-export class QueryBusImpl implements QueryBus {
+export class QueryBusMediator implements QueryBus {
   private mapHandlers: Map<string, Handler>;
 
   constructor(private readonly handlers: Handler[]) {

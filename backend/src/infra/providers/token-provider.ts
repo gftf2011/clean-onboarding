@@ -1,11 +1,11 @@
 import jwt from 'jsonwebtoken';
 
 import {
-  ITokenProvider,
+  TokenProvider,
   TokenPayload,
 } from '../../application/contracts/providers';
 
-export class TokenProvider implements ITokenProvider {
+export class JWTTokenProvider implements TokenProvider {
   constructor(private readonly expiresIn: string | number) {}
 
   public sign(data: TokenPayload): string {

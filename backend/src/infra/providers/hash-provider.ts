@@ -1,9 +1,9 @@
 import crypto from 'crypto';
 import { promisify } from 'util';
 
-import { IHashProvider } from '../../application/contracts/providers';
+import { HashProvider } from '../../application/contracts/providers';
 
-export class HashProvider implements IHashProvider {
+export class HashSha512Provider implements HashProvider {
   async encode(value: string, salt: string): Promise<string> {
     const buffer = await promisify(crypto.pbkdf2)(
       value,

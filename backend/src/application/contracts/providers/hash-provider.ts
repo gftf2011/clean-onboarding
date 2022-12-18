@@ -1,3 +1,3 @@
-export interface IHashProvider {
+export interface HashProvider {
   encode: (value: string, salt?: string) => Promise<string>;
 }

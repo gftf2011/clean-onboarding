@@ -2,14 +2,14 @@ import { PoolClient } from 'pg';
 
 import {
   Connection,
-  IDatabase,
-  IDatabaseQuery,
-  IDatabaseStatement,
+  Database,
+  DatabaseQuery,
+  DatabaseStatement,
 } from '../../../application/contracts/database';
 
 import { PostgresConnection } from './connection';
 
-export class PostgresAdapter implements IDatabase {
+export class PostgresAdapter implements Database {
   private client: PoolClient;
 
   private connection: Connection;
@@ -27,12 +27,12 @@ export class PostgresAdapter implements IDatabase {
   }
 
   public async query(
-    input: IDatabaseQuery.Input,
-  ): Promise<IDatabaseQuery.Output> {
+    input: DatabaseQuery.Input,
+  ): Promise<DatabaseQuery.Output> {
     return this.client.query(input.queryText, input.values);
   }
 
-  public async statement(input: IDatabaseStatement.Input): Promise<void> {
+  public async statement(input: DatabaseStatement.Input): Promise<void> {
     this.client.query(input.queryText, input.values);
   }
 

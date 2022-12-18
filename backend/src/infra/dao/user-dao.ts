@@ -1,6 +1,6 @@
 import {
-  IDatabaseQuery,
-  IDatabaseStatement,
+  DatabaseQuery,
+  DatabaseStatement,
 } from '../../application/contracts/database';
 import { IUserDao } from '../../application/contracts/dao';
 
@@ -18,8 +18,8 @@ type Rows = {
 export class UserDao implements IUserDao {
   constructor(
     private readonly dependencies: {
-      read: IDatabaseQuery;
-      write: IDatabaseStatement;
+      read: DatabaseQuery;
+      write: DatabaseStatement;
     },
   ) {}
 

@@ -1,11 +1,11 @@
 import { Controller } from '../../../contracts/controllers';
-import { IDatabase } from '../../../contracts/database';
+import { Database } from '../../../contracts/database';
 
 // It uses the decorator design pattern
 export class TransactionController implements Controller {
   constructor(
     private readonly decoratee: Controller,
-    private readonly database: IDatabase,
+    private readonly database: Database,
   ) {}
 
   public async handle(request: any): Promise<any> {

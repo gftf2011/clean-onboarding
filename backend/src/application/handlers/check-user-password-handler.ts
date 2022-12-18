@@ -1,11 +1,11 @@
 import { CheckUserPasswordAction } from '../actions';
 import { Handler } from '../contracts/handlers';
-import { IHashProvider } from '../contracts/providers';
+import { HashProvider } from '../contracts/providers';
 
 export class CheckUserPasswordHandler implements Handler<boolean> {
   readonly operation: string = 'check-user-password';
 
-  constructor(private readonly hash: IHashProvider) {}
+  constructor(private readonly hash: HashProvider) {}
 
   private createEncryptionSalt(
     userEmail: string,

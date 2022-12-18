@@ -16,6 +16,6 @@ export type EmailTemplate = {
   data: any;
 };
 
-export interface IEmailProvider {
+export interface EmailProvider {
   send: (options: EmailOptions, context: EmailTemplate) => Promise<void>;
 }

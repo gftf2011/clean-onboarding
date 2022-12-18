@@ -2,7 +2,7 @@ import {
   DatabaseError,
   ServiceUnavailableError,
 } from '../../../../application/errors';
-import { IDatabaseStatement } from '../../../../application/contracts/database';
+import { DatabaseStatement } from '../../../../application/contracts/database';
 
 type CircuitBreakerOptions = {
   openBreakerTimeoutInMs?: number;
@@ -25,7 +25,7 @@ enum CircuitBreakerState {
  * - It uses the {@link https://refactoring.guru/design-patterns/proxy Proxy} design pattern
  * - It uses the {@link https://microservices.io/patterns/reliability/circuit-breaker.html Circuit Breaker} architecture pattern
  */
-export class DatabaseStatementCircuitBreaker implements IDatabaseStatement {
+export class DatabaseStatementCircuitBreakerProxy implements DatabaseStatement {
   private options: CircuitBreakerOptions;
 
   private state = CircuitBreakerState.CLOSED;
@@ -38,7 +38,7 @@ export class DatabaseStatementCircuitBreaker implements IDatabaseStatement {
 
   private successCount = 0;
 
-  constructor(private readonly operation: IDatabaseStatement) {
+  constructor(private readonly operation: DatabaseStatement) {
     this.options = {
       halfBreakerTimeoutInMs: 60000,
       openBreakerTimeoutInMs: 5000,
@@ -108,7 +108,7 @@ export class DatabaseStatementCircuitBreaker implements IDatabaseStatement {
     return this.options.percentageFailedRequestsThreshold;
   }
 
-  async statement(input: IDatabaseStatement.Input): Promise<void> {
+  async statement(input: DatabaseStatement.Input): Promise<void> {
     const timestampNow = Date.now();
 
     if (

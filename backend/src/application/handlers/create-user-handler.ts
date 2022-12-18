@@ -8,14 +8,14 @@ import { CreateUserAction, SendWelcomeEmailAction } from '../actions';
 
 import { Handler } from '../contracts/handlers';
 import { ActionPublisher } from '../contracts/actions';
-import { IUUIDProvider, IHashProvider } from '../contracts/providers';
+import { IDProvider, HashProvider } from '../contracts/providers';
 
 export class CreateUserHandler implements Handler<void> {
   readonly operation: string = 'create-user';
 
   constructor(
-    private readonly uuid: IUUIDProvider,
-    private readonly hash: IHashProvider,
+    private readonly idProvider: IDProvider,
+    private readonly hashProvider: HashProvider,
     private readonly userRepo: IUserRepository,
     private readonly publisher: ActionPublisher,
   ) {}
@@ -47,7 +47,7 @@ export class CreateUserHandler implements Handler<void> {
   }
 
   private createId(): string {
-    return this.uuid.generateV4();
+    return this.idProvider.generateV4();
   }
 
   private createEncryptionSalt(
@@ -67,7 +67,10 @@ export class CreateUserHandler implements Handler<void> {
       validatedUser.email,
       validatedUser.document,
     );
-    const hashedPassword = await this.hash.encode(validatedUser.password, salt);
+    const hashedPassword = await this.hashProvider.encode(
+      validatedUser.password,
+      salt,
+    );
     const user: UserModel = {
       ...validatedUser,
       id: validatedUser?.id,

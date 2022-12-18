@@ -1,11 +1,11 @@
 import { Middleware } from '../../../contracts/middlewares';
-import { IDatabase } from '../../../contracts/database';
+import { Database } from '../../../contracts/database';
 
 // It uses the decorator design pattern
 export class TransactionMiddleware implements Middleware {
   constructor(
     private readonly decoratee: Middleware,
-    private readonly database: IDatabase,
+    private readonly database: Database,
   ) {}
 
   public async handle(request: any): Promise<any> {

@@ -2,11 +2,7 @@ import { IUserRepository } from '../../domain/repositories';
 
 import { IValidator } from '../contracts/validation';
 import { HttpRequest, HttpResponse } from '../contracts/http';
-import {
-  ITokenProvider,
-  IUUIDProvider,
-  NAMESPACES,
-} from '../contracts/providers';
+import { TokenProvider, IDProvider, NAMESPACES } from '../contracts/providers';
 
 import {
   TokenExpiredValidatorCreator,
@@ -16,11 +12,7 @@ import { TokenValidationComposite } from './design/composite';
 import { HttpMiddleware } from './design/template-methods';
 import { ok } from './utils';
 
-import {
-  TokenExpiredError,
-  TokenSubjectDoesNotMatchError,
-  UserDoNotExistsError,
-} from '../errors';
+import { UserDoNotExistsError } from '../errors';
 
 export namespace AuthMiddleware {
   export type Body = any;
@@ -38,9 +30,9 @@ export class AuthMiddleware extends HttpMiddleware {
   public override requiredHeaderParams: string[] = ['authorization'];
 
   constructor(
-    private readonly uuidProvider: IUUIDProvider,
+    private readonly idProvider: IDProvider,
     private readonly userRepo: IUserRepository,
-    private readonly tokenProvider: ITokenProvider,
+    private readonly tokenProvider: TokenProvider,
     private readonly secret: string,
   ) {
     super();
@@ -63,10 +55,7 @@ export class AuthMiddleware extends HttpMiddleware {
   }
 
   private createSubject(userEmail: string): string {
-    return this.uuidProvider.generateV5(
-      userEmail,
-      NAMESPACES.USER_ACCESS_TOKEN,
-    );
+    return this.idProvider.generateV5(userEmail, NAMESPACES.USER_ACCESS_TOKEN);
   }
 
   public async perform(

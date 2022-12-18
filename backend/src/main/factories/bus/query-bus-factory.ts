@@ -1,6 +1,6 @@
 import { QueryBus } from '../../../application/contracts/bus';
 
-import { QueryBusImpl } from '../../../infra/bus/queries';
+import { QueryBusMediator } from '../../../infra/bus/queries';
 import { PostgresAdapter } from '../../../infra/database/postgres/postgres-adapter';
 
 import {
@@ -17,6 +17,6 @@ export const queryBusFactory = (postgres: PostgresAdapter): QueryBus => {
     findUserByEmailHandlerFactory(postgres),
     findUserHandlerFactory(postgres),
   ];
-  const bus = new QueryBusImpl(handlers);
+  const bus = new QueryBusMediator(handlers);
   return bus;
 };
