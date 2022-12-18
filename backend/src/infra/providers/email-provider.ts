@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import * as nodemailer from 'nodemailer';
 
 import {
@@ -8,7 +9,9 @@ import {
   TemplateProvider,
 } from '../../application/contracts/providers';
 
-export class NodemailerEmailProvider implements EmailProvider {
+export type EmailProviderProduct = EmailProvider;
+
+class NodemailerEmailProviderProduct implements EmailProviderProduct {
   constructor(
     private readonly config: EmailConfig,
     private readonly template: TemplateProvider,
@@ -34,5 +37,31 @@ export class NodemailerEmailProvider implements EmailProvider {
         filePath: context.path,
       }),
     });
+  }
+}
+
+abstract class EmailProviderCreator implements EmailProvider {
+  protected abstract factoryMethod(): EmailProviderProduct;
+
+  public async send(
+    options: EmailOptions,
+    context: EmailTemplate,
+  ): Promise<void> {
+    const emailProvider = this.factoryMethod();
+    const response = await emailProvider.send(options, context);
+    return response;
+  }
+}
+
+export class NodemailerEmailProviderCreator extends EmailProviderCreator {
+  constructor(
+    private readonly config: EmailConfig,
+    private readonly template: TemplateProvider,
+  ) {
+    super();
+  }
+
+  protected factoryMethod(): EmailProviderProduct {
+    return new NodemailerEmailProviderProduct(this.config, this.template);
   }
 }

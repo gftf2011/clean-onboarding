@@ -2,13 +2,13 @@ import { Handler } from '../../../application/contracts/handlers';
 import { SendWelcomeEmailHandler } from '../../../application/handlers';
 
 import {
-  NodemailerEmailProvider,
-  HandlebarsTemplateProvider,
+  NodemailerEmailProviderCreator,
+  HandlebarsTemplateProviderCreator,
 } from '../../../infra/providers';
 
 export const sendWelcomeEmailHandlerFactory = (): Handler => {
-  const templateProvider = new HandlebarsTemplateProvider();
-  const emailProvider = new NodemailerEmailProvider(
+  const templateProvider = new HandlebarsTemplateProviderCreator();
+  const emailProvider = new NodemailerEmailProviderCreator(
     {
       host: process.env.ETHEREAL_EMAIL_HOST,
       password: process.env.ETHEREAL_EMAIL_PASSWORD,

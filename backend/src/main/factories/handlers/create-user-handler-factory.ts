@@ -5,7 +5,10 @@ import { CreateUserHandler } from '../../../application/handlers';
 import { UserRepository } from '../../../infra/repositories';
 import { UserDao } from '../../../infra/dao';
 import { PostgresAdapter } from '../../../infra/database/postgres/postgres-adapter';
-import { HashSha512Provider, UUIDProvider } from '../../../infra/providers';
+import {
+  HashSha512ProviderCreator,
+  UUIDProviderCreator,
+} from '../../../infra/providers';
 import {
   DatabaseQueryCircuitBreakerProxy,
   DatabaseStatementCircuitBreakerProxy,
@@ -16,8 +19,8 @@ export const createUserHandlerFactory = (
   postgres: PostgresAdapter,
   queue: Queue,
 ): Handler => {
-  const uuidProvider = new UUIDProvider();
-  const hashProvider = new HashSha512Provider();
+  const uuidProvider = new UUIDProviderCreator();
+  const hashProvider = new HashSha512ProviderCreator();
 
   const publisher = new RabbitmqActionPublisher(queue);
 

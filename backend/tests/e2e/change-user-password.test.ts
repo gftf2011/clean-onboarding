@@ -13,7 +13,7 @@ import broker from '../../src/main/config/broker';
 
 import { RabbitmqAdapter } from '../../src/infra/queue/rabbitmq/rabbitmq-adapter';
 import { PostgresAdapter } from '../../src/infra/database/postgres/postgres-adapter';
-import { HashSha512Provider } from '../../src/infra/providers';
+import { HashSha512ProviderCreator } from '../../src/infra/providers';
 
 import { UserModel as User } from '../../src/domain/models';
 
@@ -67,7 +67,7 @@ describe('Change-User-Password Route', () => {
     password: string,
     salt: string,
   ): Promise<string> => {
-    const hashProvider = new HashSha512Provider();
+    const hashProvider = new HashSha512ProviderCreator();
     const response = await hashProvider.encode(password, salt);
     return response;
   };

@@ -5,7 +5,10 @@ import { TransactionMiddleware } from '../../../application/middlewares/design/d
 import { UserRepository } from '../../../infra/repositories';
 import { UserDao } from '../../../infra/dao';
 import { PostgresAdapter } from '../../../infra/database/postgres/postgres-adapter';
-import { JWTTokenProvider, UUIDProvider } from '../../../infra/providers';
+import {
+  JWTTokenProviderCreator,
+  UUIDProviderCreator,
+} from '../../../infra/providers';
 import {
   DatabaseQueryCircuitBreakerProxy,
   DatabaseStatementCircuitBreakerProxy,
@@ -14,8 +17,8 @@ import {
 export const authMiddlewareFactory = (): Middleware => {
   const postgres = new PostgresAdapter();
 
-  const uuidProvider = new UUIDProvider();
-  const tokenProvider = new JWTTokenProvider('1h');
+  const uuidProvider = new UUIDProviderCreator();
+  const tokenProvider = new JWTTokenProviderCreator('1h');
 
   const userDao = new UserDao({
     read: new DatabaseQueryCircuitBreakerProxy(postgres),

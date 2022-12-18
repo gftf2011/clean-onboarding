@@ -4,7 +4,7 @@ import { ChangeUserPasswordHandler } from '../../../application/handlers';
 import { UserRepository } from '../../../infra/repositories';
 import { UserDao } from '../../../infra/dao';
 import { PostgresAdapter } from '../../../infra/database/postgres/postgres-adapter';
-import { HashSha512Provider } from '../../../infra/providers';
+import { HashSha512ProviderCreator } from '../../../infra/providers';
 import {
   DatabaseQueryCircuitBreakerProxy,
   DatabaseStatementCircuitBreakerProxy,
@@ -13,7 +13,7 @@ import {
 export const changeUserPasswordHandlerFactory = (
   postgres: PostgresAdapter,
 ): Handler => {
-  const hashProvider = new HashSha512Provider();
+  const hashProvider = new HashSha512ProviderCreator();
 
   const userDao = new UserDao({
     read: new DatabaseQueryCircuitBreakerProxy(postgres),
