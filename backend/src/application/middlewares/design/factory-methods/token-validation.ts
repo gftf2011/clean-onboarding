@@ -23,14 +23,6 @@ class TokenSubjectValidatorProduct implements TokenValidatorProduct {
   }
 }
 
-class TokenExpiredValidatorProduct implements TokenValidatorProduct {
-  public validate(token: JWTToken): void {
-    const now = Date.now();
-    const tokenExpirationTimeInMilliseconds = token.exp * 1000;
-    if (now > tokenExpirationTimeInMilliseconds) throw new TokenExpiredError();
-  }
-}
-
 abstract class TokenValidatorCreator implements IValidator {
   constructor(private readonly token: JWTToken, private readonly data?: any) {}
 
@@ -45,11 +37,5 @@ abstract class TokenValidatorCreator implements IValidator {
 export class TokenSubjectValidatorCreator extends TokenValidatorCreator {
   protected factoryMethod(sub: string): TokenValidatorProduct {
     return new TokenSubjectValidatorProduct(sub);
-  }
-}
-
-export class TokenExpiredValidatorCreator extends TokenValidatorCreator {
-  protected factoryMethod(): TokenValidatorProduct {
-    return new TokenExpiredValidatorProduct();
   }
 }

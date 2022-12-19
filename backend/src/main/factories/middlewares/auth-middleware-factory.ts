@@ -18,7 +18,9 @@ export const authMiddlewareFactory = (): Middleware => {
   const postgres = new PostgresAdapter();
 
   const uuidProvider = new UUIDProviderCreator();
-  const tokenProvider = new JWTTokenProviderCreator('1h');
+  const tokenProvider = new JWTTokenProviderCreator(
+    process.env.JWT_EXPIRATION_TIME,
+  );
 
   const userDao = new UserDao({
     read: new DatabaseQueryCircuitBreakerProxy(postgres),

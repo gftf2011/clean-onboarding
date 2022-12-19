@@ -8,7 +8,9 @@ import {
 
 export const getUserSessionHandlerFactory = (): Handler => {
   const uuidProvider = new UUIDProviderCreator();
-  const tokenProvider = new JWTTokenProviderCreator('1h');
+  const tokenProvider = new JWTTokenProviderCreator(
+    process.env.JWT_EXPIRATION_TIME,
+  );
   const handler = new GetUserSessionHandler(tokenProvider, uuidProvider);
   return handler;
 };

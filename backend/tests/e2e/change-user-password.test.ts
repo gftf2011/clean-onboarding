@@ -16,6 +16,7 @@ import { PostgresAdapter } from '../../src/infra/database/postgres/postgres-adap
 import { HashSha512ProviderCreator } from '../../src/infra/providers';
 
 import { UserModel as User } from '../../src/domain/models';
+import { TokenExpiredError } from '../../src/application/errors';
 
 jest.mock('nodemailer');
 
@@ -155,6 +156,58 @@ describe('Change-User-Password Route', () => {
           `${userWithNewPassword.email}$${userWithNewPassword.document}`,
         ),
       );
+    });
+
+    it('should return 401 if token is expirerd', async () => {
+      const sendMailSpy = jest.fn();
+
+      (nodemailer.createTransport as any).mockReturnValue({
+        sendMail: sendMailSpy,
+      });
+      const user = {
+        email: 'test@mail.com',
+        password: '12345678xX@',
+        name: 'test',
+        lastname: 'test',
+        locale: 'UNITED_STATES_OF_AMERICA',
+        phone: faker.phone.phoneNumber('##########'),
+        document: new RandomSSN().value().toString(),
+      };
+      const userWithNewPassword = {
+        ...user,
+        password: '12345670zZ#',
+      };
+
+      const signUpResponse = await request(server)
+        .post('/api/V1/sign-up')
+        .send(user);
+      const signInResponse = await request(server)
+        .post('/api/V1/sign-in')
+        .send({
+          email: user.email,
+          password: user.password,
+        });
+
+      await sleep(45000);
+
+      const changeUserPasswordResponse = await request(server)
+        .post('/api/V1/change-user-password')
+        .send({
+          password: userWithNewPassword.password,
+        })
+        .set('Authorization', signInResponse.body.auth);
+
+      const error = new TokenExpiredError();
+
+      expect(sendMailSpy).toHaveBeenCalledTimes(1);
+      expect(signUpResponse.status).toBe(204);
+      expect(signInResponse.status).toBe(200);
+      expect(signInResponse.body).toBeDefined();
+      expect(changeUserPasswordResponse.status).toBe(401);
+      expect(changeUserPasswordResponse.body).toEqual({
+        message: error.message,
+        name: error.name,
+      });
     });
 
     afterEach(async () => {

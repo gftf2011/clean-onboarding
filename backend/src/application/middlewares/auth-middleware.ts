@@ -4,15 +4,12 @@ import { IValidator } from '../contracts/validation';
 import { HttpRequest, HttpResponse } from '../contracts/http';
 import { TokenProvider, IDProvider, NAMESPACES } from '../contracts/providers';
 
-import {
-  TokenExpiredValidatorCreator,
-  TokenSubjectValidatorCreator,
-} from './design/factory-methods';
+import { TokenSubjectValidatorCreator } from './design/factory-methods';
 import { TokenValidationComposite } from './design/composite';
 import { HttpMiddleware } from './design/template-methods';
 import { ok } from './utils';
 
-import { UserDoNotExistsError } from '../errors';
+import { TokenExpiredError, UserDoNotExistsError } from '../errors';
 
 export namespace AuthMiddleware {
   export type Body = any;
@@ -41,8 +38,7 @@ export class AuthMiddleware extends HttpMiddleware {
   private setupValidators(token: any, fields: ValidationFields): void {
     const { sub } = fields;
     const tokenSubjectValidator = new TokenSubjectValidatorCreator(token, sub);
-    const tokenExpiredValidator = new TokenExpiredValidatorCreator(token);
-    const validations = [tokenSubjectValidator, tokenExpiredValidator];
+    const validations = [tokenSubjectValidator];
     this.validator = new TokenValidationComposite(validations);
   }
 
@@ -65,14 +61,18 @@ export class AuthMiddleware extends HttpMiddleware {
       AuthMiddleware.Header
     >,
   ): Promise<HttpResponse> {
-    const token = this.cleanToken(request.headers.authorization);
-    const jwtToken = this.tokenProvider.verify(token, this.secret);
-    const user = await this.userRepo.find(jwtToken.id);
-    if (!user) throw new UserDoNotExistsError();
-    const sub = this.createSubject(user.email);
+    try {
+      const token = this.cleanToken(request.headers.authorization);
+      const jwtToken = this.tokenProvider.verify(token, this.secret);
+      const user = await this.userRepo.find(jwtToken.id);
+      if (!user) throw new UserDoNotExistsError();
+      const sub = this.createSubject(user.email);
 
-    this.setupValidators(jwtToken, { sub });
-    this.validateToken();
-    return ok(jwtToken.id);
+      this.setupValidators(jwtToken, { sub });
+      this.validateToken();
+      return ok(jwtToken.id);
+    } catch (error) {
+      throw new TokenExpiredError();
+    }
   }
 }
