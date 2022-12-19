@@ -1,7 +1,7 @@
 import '../../src/main/bootstrap';
 
 import faker from 'faker';
-import request from 'supertest';
+import request, { Response } from 'supertest';
 import { RandomSSN } from 'ssn';
 import { cpf } from 'cpf-cnpj-validator';
 
@@ -14,6 +14,7 @@ import broker from '../../src/main/config/broker';
 import { RabbitmqAdapter } from '../../src/infra/queue/rabbitmq/rabbitmq-adapter';
 import { PostgresAdapter } from '../../src/infra/database/postgres/postgres-adapter';
 
+import { UserDTO } from '../../src/domain/dtos';
 import {
   InvalidDocumentNumberError,
   InvalidEmailError,
@@ -55,6 +56,11 @@ describe('Sign-Up Route', () => {
     });
   };
 
+  const signUpRequest = async (user: UserDTO): Promise<Response> => {
+    const response = await request(server).post('/api/V1/sign-up').send(user);
+    return response;
+  };
+
   beforeAll(async () => {
     await loader();
     await broker();
@@ -90,9 +96,7 @@ describe('Sign-Up Route', () => {
           document: new RandomSSN().value().toString(),
         };
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         await sleep(500);
 
@@ -113,9 +117,7 @@ describe('Sign-Up Route', () => {
 
         const error = new InvalidEmailError(user.email);
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -137,9 +139,7 @@ describe('Sign-Up Route', () => {
 
         const error = new InvalidPasswordError();
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -161,9 +161,7 @@ describe('Sign-Up Route', () => {
           phone,
         };
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         const error = new InvalidPasswordError();
 
@@ -185,9 +183,7 @@ describe('Sign-Up Route', () => {
           phone: faker.phone.phoneNumber('##########'),
         };
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         const error = new InvalidNameError(user.name);
 
@@ -209,9 +205,7 @@ describe('Sign-Up Route', () => {
           phone: faker.phone.phoneNumber('##########'),
         };
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         const error = new InvalidLastnameError(user.lastname);
 
@@ -233,9 +227,7 @@ describe('Sign-Up Route', () => {
           phone: faker.phone.phoneNumber('##########'),
         };
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         const error = new InvalidDocumentNumberError(
           user.document,
@@ -260,9 +252,7 @@ describe('Sign-Up Route', () => {
           phone: '',
         };
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         const error = new InvalidPhoneError(user.phone, user.locale);
 
@@ -291,15 +281,11 @@ describe('Sign-Up Route', () => {
         };
         const error = new UserAlreadyExistsError();
 
-        const successResponse = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const successResponse = await signUpRequest(user);
 
         await sleep(500);
 
-        const failResponse = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const failResponse = await signUpRequest(user);
 
         expect(successResponse.status).toBe(204);
 
@@ -343,9 +329,7 @@ describe('Sign-Up Route', () => {
           document: cpf.generate(),
         };
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         await sleep(500);
 
@@ -370,9 +354,7 @@ describe('Sign-Up Route', () => {
           document: cpf.generate(),
         };
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         await sleep(500);
 
@@ -392,9 +374,7 @@ describe('Sign-Up Route', () => {
         };
         const error = new InvalidEmailError(user.email);
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -415,9 +395,7 @@ describe('Sign-Up Route', () => {
         };
         const error = new InvalidPasswordError();
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -440,9 +418,7 @@ describe('Sign-Up Route', () => {
         };
         const error = new InvalidPasswordError();
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -463,9 +439,7 @@ describe('Sign-Up Route', () => {
         };
         const error = new InvalidNameError(user.name);
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -486,9 +460,7 @@ describe('Sign-Up Route', () => {
         };
         const error = new InvalidLastnameError(user.lastname);
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -512,9 +484,7 @@ describe('Sign-Up Route', () => {
           user.locale,
         );
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -535,9 +505,7 @@ describe('Sign-Up Route', () => {
         };
         const error = new InvalidPhoneError(user.phone, user.locale);
 
-        const response = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const response = await signUpRequest(user);
 
         expect(response.status).toBe(400);
         expect(response.body).toEqual({
@@ -564,15 +532,11 @@ describe('Sign-Up Route', () => {
         };
         const error = new UserAlreadyExistsError();
 
-        const successResponse = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const successResponse = await signUpRequest(user);
 
         await sleep(500);
 
-        const failResponse = await request(server)
-          .post('/api/V1/sign-up')
-          .send(user);
+        const failResponse = await signUpRequest(user);
 
         expect(successResponse.status).toBe(204);
 
