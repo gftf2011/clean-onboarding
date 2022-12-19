@@ -2,7 +2,7 @@
 import '../../src/main/bootstrap';
 
 import faker from 'faker';
-import request from 'supertest';
+import request, { Response } from 'supertest';
 import { RandomSSN } from 'ssn';
 
 import nodemailer from 'nodemailer';
@@ -14,6 +14,8 @@ import broker from '../../src/main/config/broker';
 
 import { RabbitmqAdapter } from '../../src/infra/queue/rabbitmq/rabbitmq-adapter';
 import { PostgresAdapter } from '../../src/infra/database/postgres/postgres-adapter';
+
+import { AccountDTO, UserDTO } from '../../src/domain/dtos';
 
 import {
   UserDoNotExistsError,
@@ -49,6 +51,19 @@ describe('Sign-In Route', () => {
         resolve();
       }, timeout);
     });
+  };
+
+  const signUpRequest = async (user: UserDTO): Promise<Response> => {
+    const response = await request(server).post('/api/V1/sign-up').send(user);
+    return response;
+  };
+
+  const signInRequest = async (account: AccountDTO): Promise<Response> => {
+    const response = await request(server).post('/api/V1/sign-in').send({
+      email: account.email,
+      password: account.password,
+    });
+    return response;
   };
 
   beforeAll(async () => {
@@ -92,16 +107,11 @@ describe('Sign-In Route', () => {
         document: new RandomSSN().value().toString(),
       };
 
-      const signUpResponse = await request(server)
-        .post('/api/V1/sign-up')
-        .send(user);
-
-      const signInResponse = await request(server)
-        .post('/api/V1/sign-in')
-        .send({
-          email: user.email,
-          password: user.password,
-        });
+      const signUpResponse = await signUpRequest(user);
+      const signInResponse = await signInRequest({
+        email: user.email,
+        password: user.password,
+      });
 
       await sleep(500);
 
@@ -121,9 +131,7 @@ describe('Sign-In Route', () => {
       };
       const error = new UserDoNotExistsError();
 
-      const response = await request(server)
-        .post('/api/V1/sign-in')
-        .send(account);
+      const response = await signInRequest(account);
 
       expect(response.status).toBe(401);
       expect(response.body).toEqual({
@@ -152,20 +160,16 @@ describe('Sign-In Route', () => {
         email: user.email,
         password: '12345670zZ$',
       };
-      const error = new PasswordDoesNotMatchError();
 
-      const signUpResponse = await request(server)
-        .post('/api/V1/sign-up')
-        .send(user);
+      const signUpResponse = await signUpRequest(user);
 
       await sleep(500);
 
-      const signInResponse = await request(server)
-        .post('/api/V1/sign-in')
-        .send(account);
+      const signInResponse = await signInRequest(account);
+
+      const error = new PasswordDoesNotMatchError();
 
       expect(signUpResponse.status).toBe(204);
-
       expect(signInResponse.status).toBe(403);
       expect(signInResponse.body).toEqual({
         message: error.message,
