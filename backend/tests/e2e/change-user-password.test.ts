@@ -2,7 +2,7 @@
 import '../../src/main/bootstrap';
 
 import faker from 'faker';
-import request from 'supertest';
+import request, { Response } from 'supertest';
 import { RandomSSN } from 'ssn';
 
 import nodemailer from 'nodemailer';
@@ -15,7 +15,8 @@ import { RabbitmqAdapter } from '../../src/infra/queue/rabbitmq/rabbitmq-adapter
 import { PostgresAdapter } from '../../src/infra/database/postgres/postgres-adapter';
 import { HashSha512ProviderCreator } from '../../src/infra/providers';
 
-import { UserModel as User } from '../../src/domain/models';
+import { AccountDTO, UserDTO } from '../../src/domain/dtos';
+import { UserModel } from '../../src/domain/models';
 import {
   TokenExpiredError,
   UserDoNotExistsError,
@@ -43,7 +44,7 @@ describe('Change-User-Password Route', () => {
     await postgres.closeTransaction();
   };
 
-  const findUser = async (input: { email: string }): Promise<User> => {
+  const findUser = async (input: { email: string }): Promise<UserModel> => {
     await postgres.createClient();
     await postgres.openTransaction();
 
@@ -84,6 +85,31 @@ describe('Change-User-Password Route', () => {
     });
   };
 
+  const signUpRequest = async (user: UserDTO): Promise<Response> => {
+    const response = await request(server).post('/api/V1/sign-up').send(user);
+    return response;
+  };
+
+  const signInRequest = async (account: AccountDTO): Promise<Response> => {
+    const response = await request(server).post('/api/V1/sign-in').send({
+      email: account.email,
+      password: account.password,
+    });
+    return response;
+  };
+
+  const changePasswordRequest = async (
+    password: string,
+    accessToken: string,
+  ): Promise<Response> => {
+    const response = await request(server)
+      .post('/api/V1/change-user-password')
+      .send({ password })
+      .set('Authorization', accessToken);
+
+    return response;
+  };
+
   beforeAll(async () => {
     await loader();
     await broker();
@@ -107,6 +133,7 @@ describe('Change-User-Password Route', () => {
       (nodemailer.createTransport as any).mockReturnValue({
         sendMail: sendMailSpy,
       });
+
       const user = {
         email: 'test@mail.com',
         password: '12345678xX@',
@@ -121,25 +148,21 @@ describe('Change-User-Password Route', () => {
         password: '12345670zZ#',
       };
 
-      const signUpResponse = await request(server)
-        .post('/api/V1/sign-up')
-        .send(user);
-      const signInResponse = await request(server)
-        .post('/api/V1/sign-in')
-        .send({
-          email: user.email,
-          password: user.password,
-        });
+      const signUpResponse = await signUpRequest(user);
+      const signInResponse = await signInRequest({
+        email: user.email,
+        password: user.password,
+      });
 
       await sleep(500);
 
       const userFound = await findUser({ email: user.email });
-      const changeUserPasswordResponse = await request(server)
-        .post('/api/V1/change-user-password')
-        .send({
-          password: userWithNewPassword.password,
-        })
-        .set('Authorization', signInResponse.body.auth);
+
+      const changeUserPasswordResponse = await changePasswordRequest(
+        userWithNewPassword.password,
+        signInResponse.body.auth,
+      );
+
       const userFoundAfterPasswordChange = await findUser({
         email: userWithNewPassword.email,
       });
@@ -167,6 +190,7 @@ describe('Change-User-Password Route', () => {
       (nodemailer.createTransport as any).mockReturnValue({
         sendMail: sendMailSpy,
       });
+
       const user = {
         email: 'test@mail.com',
         password: '12345678xX@',
@@ -181,24 +205,18 @@ describe('Change-User-Password Route', () => {
         password: '12345670zZ#',
       };
 
-      const signUpResponse = await request(server)
-        .post('/api/V1/sign-up')
-        .send(user);
-      const signInResponse = await request(server)
-        .post('/api/V1/sign-in')
-        .send({
-          email: user.email,
-          password: user.password,
-        });
+      const signUpResponse = await signUpRequest(user);
+      const signInResponse = await signInRequest({
+        email: user.email,
+        password: user.password,
+      });
 
       await sleep(45000);
 
-      const changeUserPasswordResponse = await request(server)
-        .post('/api/V1/change-user-password')
-        .send({
-          password: userWithNewPassword.password,
-        })
-        .set('Authorization', signInResponse.body.auth);
+      const changeUserPasswordResponse = await changePasswordRequest(
+        userWithNewPassword.password,
+        signInResponse.body.auth,
+      );
 
       const error = new TokenExpiredError();
 
@@ -219,6 +237,7 @@ describe('Change-User-Password Route', () => {
       (nodemailer.createTransport as any).mockReturnValue({
         sendMail: sendMailSpy,
       });
+
       const user = {
         email: 'test@mail.com',
         password: '12345678xX@',
@@ -233,25 +252,20 @@ describe('Change-User-Password Route', () => {
         password: '12345670zZ#',
       };
 
-      const signUpResponse = await request(server)
-        .post('/api/V1/sign-up')
-        .send(user);
-      const signInResponse = await request(server)
-        .post('/api/V1/sign-in')
-        .send({
-          email: user.email,
-          password: user.password,
-        });
+      const signUpResponse = await signUpRequest(user);
+      const signInResponse = await signInRequest({
+        email: user.email,
+        password: user.password,
+      });
 
       await sleep(500);
+
       await cleanAllUsers();
 
-      const changeUserPasswordResponse = await request(server)
-        .post('/api/V1/change-user-password')
-        .send({
-          password: userWithNewPassword.password,
-        })
-        .set('Authorization', signInResponse.body.auth);
+      const changeUserPasswordResponse = await changePasswordRequest(
+        userWithNewPassword.password,
+        signInResponse.body.auth,
+      );
 
       const error = new UserDoNotExistsError();
 
