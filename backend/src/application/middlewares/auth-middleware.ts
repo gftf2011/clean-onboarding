@@ -11,6 +11,8 @@ import { ok } from './utils';
 
 import { TokenExpiredError, UserDoNotExistsError } from '../errors';
 
+import { Either, left, right } from '../../shared';
+
 export namespace AuthMiddleware {
   export type Body = any;
   export type Url = any;
@@ -54,6 +56,15 @@ export class AuthMiddleware extends HttpMiddleware {
     return this.idProvider.generateV5(userEmail, NAMESPACES.USER_ACCESS_TOKEN);
   }
 
+  private verifyToken(token: string): Either<Error, any> {
+    try {
+      const jwtToken = this.tokenProvider.verify(token, this.secret);
+      return right(jwtToken);
+    } catch (error) {
+      return left(new TokenExpiredError());
+    }
+  }
+
   public async perform(
     request: HttpRequest<
       AuthMiddleware.Url,
@@ -61,18 +72,20 @@ export class AuthMiddleware extends HttpMiddleware {
       AuthMiddleware.Header
     >,
   ): Promise<HttpResponse> {
-    try {
-      const token = this.cleanToken(request.headers.authorization);
-      const jwtToken = this.tokenProvider.verify(token, this.secret);
-      const user = await this.userRepo.find(jwtToken.id);
-      if (!user) throw new UserDoNotExistsError();
-      const sub = this.createSubject(user.email);
+    const token = this.cleanToken(request.headers.authorization);
+    const jwtTokenOrError = this.verifyToken(token);
 
-      this.setupValidators(jwtToken, { sub });
-      this.validateToken();
-      return ok(jwtToken.id);
-    } catch (error) {
-      throw new TokenExpiredError();
-    }
+    if (jwtTokenOrError.isLeft()) throw jwtTokenOrError.value;
+
+    const jwtToken = jwtTokenOrError.value;
+    const user = await this.userRepo.find(jwtToken.id);
+
+    if (!user) throw new UserDoNotExistsError();
+
+    const sub = this.createSubject(user.email);
+
+    this.setupValidators(jwtToken, { sub });
+    this.validateToken();
+    return ok(jwtToken.id);
   }
 }
