@@ -4,7 +4,7 @@
 import { Pool, PoolConfig } from 'pg';
 
 // It uses the builder design pattern
-export class PostgresPoolConfig {
+export class PostgresPoolConfigBuilder {
   private pool: PoolConfig;
 
   public constructor() {
@@ -15,60 +15,64 @@ export class PostgresPoolConfig {
     this.pool = {};
   }
 
-  public addHost(host?: string): PostgresPoolConfig {
+  public addHost(host?: string): PostgresPoolConfigBuilder {
     this.pool.host = host;
     return this;
   }
 
-  public addPort(port?: number): PostgresPoolConfig {
+  public addPort(port?: number): PostgresPoolConfigBuilder {
     this.pool.port = port;
     return this;
   }
 
   public addIdleTransactionTimeout(
     idleInTransactionSessionTimeout?: number,
-  ): PostgresPoolConfig {
+  ): PostgresPoolConfigBuilder {
     this.pool.idle_in_transaction_session_timeout =
       idleInTransactionSessionTimeout;
     return this;
   }
 
-  public addQueryTimeout(queryTimeout?: number): PostgresPoolConfig {
+  public addQueryTimeout(queryTimeout?: number): PostgresPoolConfigBuilder {
     this.pool.query_timeout = queryTimeout;
     return this;
   }
 
-  public addStatementTimeout(statementTimeout?: number): PostgresPoolConfig {
+  public addStatementTimeout(
+    statementTimeout?: number,
+  ): PostgresPoolConfigBuilder {
     this.pool.statement_timeout = statementTimeout;
     return this;
   }
 
-  public addUser(user?: string): PostgresPoolConfig {
+  public addUser(user?: string): PostgresPoolConfigBuilder {
     this.pool.user = user;
     return this;
   }
 
-  public addPass(password?: string): PostgresPoolConfig {
+  public addPass(password?: string): PostgresPoolConfigBuilder {
     this.pool.password = password;
     return this;
   }
 
-  public addDb(database?: string): PostgresPoolConfig {
+  public addDb(database?: string): PostgresPoolConfigBuilder {
     this.pool.database = database;
     return this;
   }
 
-  public addMax(max?: number): PostgresPoolConfig {
+  public addMax(max?: number): PostgresPoolConfigBuilder {
     this.pool.max = max || this.pool.max;
     return this;
   }
 
-  public addConnectionTimeout(connectionTimeout?: number): PostgresPoolConfig {
+  public addConnectionTimeout(
+    connectionTimeout?: number,
+  ): PostgresPoolConfigBuilder {
     this.pool.connectionTimeoutMillis = connectionTimeout;
     return this;
   }
 
-  public addIdleTimeout(idleTimeout?: number): PostgresPoolConfig {
+  public addIdleTimeout(idleTimeout?: number): PostgresPoolConfigBuilder {
     this.pool.idleTimeoutMillis = idleTimeout;
     return this;
   }

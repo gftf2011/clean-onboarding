@@ -1,5 +1,4 @@
 import { Handler } from '../handlers';
-import { Queue } from '../queue';
 
 export interface Action {
   readonly operation: string;
@@ -10,22 +9,15 @@ export interface ActionPublisher {
   publish: (action: Action) => Promise<void>;
 }
 
-export class ActionSubscriber {
+export interface ActionSubscriber {
+  subscribe: (handler: Handler) => Promise<void>;
+}
+
+export class ActionSubscriberInitializer {
   constructor(
-    private readonly queue: Queue,
+    private readonly subscriber: ActionSubscriber,
     private readonly handler: Handler,
   ) {
-    this.subscribe(this.queue, this.handler);
-  }
-
-  private async subscribe(queue: Queue, handler: Handler): Promise<void> {
-    try {
-      await queue.createChannel();
-      await queue.consume(handler.operation, async (data: any) => {
-        await handler.handle(data);
-      });
-    } catch (error) {
-      await queue.closeChannel();
-    }
+    this.subscriber.subscribe(this.handler);
   }
 }

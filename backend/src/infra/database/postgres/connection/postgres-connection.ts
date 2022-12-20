@@ -1,6 +1,6 @@
 import { Pool, PoolClient } from 'pg';
 
-import { PostgresPoolConfig } from '../config';
+import { PostgresPoolConfigBuilder } from '../config';
 
 import { Connection } from '../../../../application/contracts/database';
 
@@ -21,7 +21,7 @@ export class PostgresConnection implements Connection {
 
   public async connect(config: any): Promise<void> {
     if (!PostgresConnection.pool) {
-      const pool = new PostgresPoolConfig()
+      const pool = new PostgresPoolConfigBuilder()
         .addIdleTransactionTimeout(config.idleInTransactionSessionTimeout)
         .addQueryTimeout(config.queryTimeout)
         .addStatementTimeout(config.statementTimeout)
