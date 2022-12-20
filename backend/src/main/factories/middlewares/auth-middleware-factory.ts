@@ -2,7 +2,7 @@ import { Middleware } from '../../../application/contracts/middlewares';
 import { AuthMiddleware } from '../../../application/middlewares';
 import { TransactionMiddleware } from '../../../application/middlewares/design/decorators';
 
-import { UserRepository } from '../../../infra/repositories';
+import { RemoteUserRepositoryFactory } from '../../../infra/repositories';
 import { UserDao } from '../../../infra/dao';
 import { PostgresAdapter } from '../../../infra/database/postgres/postgres-adapter';
 import {
@@ -27,9 +27,7 @@ export const authMiddlewareFactory = (): Middleware => {
     write: new DatabaseStatementCircuitBreakerProxy(postgres),
   });
 
-  const userRepo = new UserRepository({
-    user: userDao,
-  });
+  const userRepo = new RemoteUserRepositoryFactory(userDao).createRepository();
   const middleware = new TransactionMiddleware(
     new AuthMiddleware(
       uuidProvider,

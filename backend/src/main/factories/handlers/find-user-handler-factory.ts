@@ -1,7 +1,7 @@
 import { Handler } from '../../../application/contracts/handlers';
 import { FindUserHandler } from '../../../application/handlers';
 
-import { UserRepository } from '../../../infra/repositories';
+import { RemoteUserRepositoryFactory } from '../../../infra/repositories';
 import { UserDao } from '../../../infra/dao';
 import { PostgresAdapter } from '../../../infra/database/postgres/postgres-adapter';
 import {
@@ -14,9 +14,7 @@ export const findUserHandlerFactory = (postgres: PostgresAdapter): Handler => {
     read: new DatabaseQueryCircuitBreakerProxy(postgres),
     write: new DatabaseStatementCircuitBreakerProxy(postgres),
   });
-  const userRepo = new UserRepository({
-    user: userDao,
-  });
+  const userRepo = new RemoteUserRepositoryFactory(userDao).createRepository();
   const handler = new FindUserHandler(userRepo);
   return handler;
 };

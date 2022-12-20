@@ -2,7 +2,7 @@ import { Nationalities } from '../../domain/contracts';
 import { UserDTO } from '../../domain/dtos';
 import { User } from '../../domain/entities';
 import { UserModel } from '../../domain/models';
-import { IUserRepository } from '../../domain/repositories';
+import { UserRepository } from '../../domain/repositories';
 
 import { CreateUserAction, SendWelcomeEmailAction } from '../actions';
 
@@ -16,7 +16,7 @@ export class CreateUserHandler implements Handler<void> {
   constructor(
     private readonly idProvider: IDProvider,
     private readonly hashProvider: HashProvider,
-    private readonly userRepo: IUserRepository,
+    private readonly userRepo: UserRepository,
     private readonly publisher: ActionPublisher,
   ) {}
 

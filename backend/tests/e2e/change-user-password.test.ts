@@ -211,7 +211,7 @@ describe('Change-User-Password Route', () => {
         password: user.password,
       });
 
-      await sleep(45000);
+      await sleep(5000);
 
       const changeUserPasswordResponse = await changePasswordRequest(
         userWithNewPassword.password,

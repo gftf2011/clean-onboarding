@@ -2,7 +2,7 @@ import { Nationalities } from '../../domain/contracts';
 import { UserDTO } from '../../domain/dtos';
 import { User } from '../../domain/entities';
 import { UserModel } from '../../domain/models';
-import { IUserRepository } from '../../domain/repositories';
+import { UserRepository } from '../../domain/repositories';
 
 import { Handler } from '../contracts/handlers';
 import { ChangeUserPasswordAction } from '../actions';
@@ -13,7 +13,7 @@ export class ChangeUserPasswordHandler implements Handler<void> {
 
   constructor(
     private readonly hash: HashProvider,
-    private readonly userRepo: IUserRepository,
+    private readonly userRepo: UserRepository,
   ) {}
 
   private validateAndCreateUser(input: UserDTO): UserDTO {

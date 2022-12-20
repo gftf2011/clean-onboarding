@@ -1,4 +1,4 @@
-import { IUserRepository } from '../../domain/repositories';
+import { UserRepository } from '../../domain/repositories';
 
 import { IValidator } from '../contracts/validation';
 import { HttpRequest, HttpResponse } from '../contracts/http';
@@ -30,7 +30,7 @@ export class AuthMiddleware extends HttpMiddleware {
 
   constructor(
     private readonly idProvider: IDProvider,
-    private readonly userRepo: IUserRepository,
+    private readonly userRepo: UserRepository,
     private readonly tokenProvider: TokenProvider,
     private readonly secret: string,
   ) {
