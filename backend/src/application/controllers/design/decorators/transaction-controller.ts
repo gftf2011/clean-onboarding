@@ -2,7 +2,7 @@ import { Controller } from '../../../contracts/controllers';
 import { Database } from '../../../contracts/database';
 
 // It uses the decorator design pattern
-export class TransactionController implements Controller {
+export class TransactionControllerDecorator implements Controller {
   constructor(
     private readonly decoratee: Controller,
     private readonly database: Database,

@@ -13,7 +13,8 @@ import {
   DatabaseQueryCircuitBreakerProxy,
   DatabaseStatementCircuitBreakerProxy,
 } from '../../../infra/database/postgres/circuit-breaker';
-import { RabbitmqActionPublisher } from '../../../infra/queue/rabbitmq/publisher';
+import { RabbitmqActionPublisherDecorator } from '../../../infra/queue/rabbitmq/publisher';
+import { ActionPublisherTransaction } from '../../../infra/queue/rabbitmq/publisher/design/decorators';
 
 export const createUserHandlerFactory = (
   postgres: PostgresAdapter,
@@ -22,7 +23,10 @@ export const createUserHandlerFactory = (
   const uuidProvider = new UUIDProviderCreator();
   const hashProvider = new HashSha512ProviderCreator();
 
-  const publisher = new RabbitmqActionPublisher(queue);
+  const publisher = new ActionPublisherTransaction(
+    queue,
+    new RabbitmqActionPublisherDecorator(queue),
+  );
 
   const userDao = new UserDao({
     read: new DatabaseQueryCircuitBreakerProxy(postgres),

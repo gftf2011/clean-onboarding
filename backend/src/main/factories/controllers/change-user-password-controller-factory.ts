@@ -1,5 +1,5 @@
 import { Controller } from '../../../application/contracts/controllers';
-import { TransactionController } from '../../../application/controllers/design/decorators';
+import { TransactionControllerDecorator } from '../../../application/controllers/design/decorators';
 import { UserService } from '../../../application/services';
 import { ChangeUserPasswordController } from '../../../application/controllers';
 
@@ -16,7 +16,7 @@ export const changeUserPasswordControllerFactory = (): Controller => {
   const commandBus = commandBusFactory(postgres, rabbitmq);
 
   const userService = new UserService(commandBus, queryBus);
-  const controller = new TransactionController(
+  const controller = new TransactionControllerDecorator(
     new ChangeUserPasswordController(userService),
     postgres,
   );
