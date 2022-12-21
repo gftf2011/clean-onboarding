@@ -60,7 +60,9 @@ describe('Create User Handler', () => {
       email: action.data.user.email.toLowerCase(),
       lastname: action.data.user.lastname.toLowerCase(),
       name: action.data.user.name.toLowerCase(),
-      password: 'encoded_value',
+      password: `encoded_${
+        action.data.user.password
+      }-${action.data.user.email.toLowerCase()}$${action.data.user.document}`,
       phone: action.data.user.phone,
       document: action.data.user.document,
       locale: 'UNITED_STATES_OF_AMERICA',

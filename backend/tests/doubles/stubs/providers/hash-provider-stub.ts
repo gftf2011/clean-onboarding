@@ -5,6 +5,6 @@ export class HashProviderStub implements HashProvider {
     value: string,
     salt?: string | undefined,
   ): Promise<string> {
-    return `encoded_value`;
+    return `encoded_${value}-${salt}`;
   }
 }
