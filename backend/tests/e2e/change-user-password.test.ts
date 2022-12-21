@@ -17,6 +17,8 @@ import { HashSha512ProviderCreator } from '../../src/infra/providers';
 
 import { AccountDTO, UserDTO } from '../../src/domain/dtos';
 import { UserModel } from '../../src/domain/models';
+import { InvalidPasswordError } from '../../src/domain/errors';
+
 import {
   TokenExpiredError,
   UserDoNotExistsError,
@@ -182,6 +184,60 @@ describe('Change-User-Password Route', () => {
           `${userWithNewPassword.email}$${userWithNewPassword.document}`,
         ),
       );
+    });
+
+    it('should return 400 when password is not strong enough', async () => {
+      const sendMailSpy = jest.fn();
+
+      (nodemailer.createTransport as any).mockReturnValue({
+        sendMail: sendMailSpy,
+      });
+
+      const user = {
+        email: 'test@mail.com',
+        password: '12345678xX@',
+        name: 'test',
+        lastname: 'test',
+        locale: 'UNITED_STATES_OF_AMERICA',
+        phone: faker.phone.phoneNumber('##########'),
+        document: new RandomSSN().value().toString(),
+      };
+      const userWithNewPassword = {
+        ...user,
+        password: '123456',
+      };
+
+      const signUpResponse = await signUpRequest(user);
+      const signInResponse = await signInRequest({
+        email: user.email,
+        password: user.password,
+      });
+
+      await sleep(500);
+
+      const userFound = await findUser({ email: user.email });
+
+      const changeUserPasswordResponse = await changePasswordRequest(
+        userWithNewPassword.password,
+        signInResponse.body.auth,
+      );
+
+      const userFoundAfterPasswordChange = await findUser({
+        email: userWithNewPassword.email,
+      });
+
+      const error = new InvalidPasswordError();
+
+      expect(sendMailSpy).toHaveBeenCalledTimes(1);
+      expect(signUpResponse.status).toBe(204);
+      expect(signInResponse.status).toBe(200);
+      expect(signInResponse.body).toBeDefined();
+      expect(userFound.id).toBe(userFoundAfterPasswordChange.id);
+      expect(changeUserPasswordResponse.status).toBe(400);
+      expect(changeUserPasswordResponse.body).toEqual({
+        message: error.message,
+        name: error.name,
+      });
     });
 
     it('should return 401 if token is expirerd', async () => {
