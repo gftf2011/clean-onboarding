@@ -20,6 +20,7 @@ import { AccountDTO, UserDTO } from '../../src/domain/dtos';
 import {
   UserDoNotExistsError,
   PasswordDoesNotMatchError,
+  MissingBodyParamsError,
 } from '../../src/application/errors';
 
 jest.mock('nodemailer');
@@ -63,6 +64,17 @@ describe('Sign-In Route', () => {
       email: account.email,
       password: account.password,
     });
+    return response;
+  };
+
+  const signInRequestWithNoAccountEmail = async (
+    account: AccountDTO,
+  ): Promise<Response> => {
+    const newAccount: any = account;
+    delete newAccount.email;
+    const response = await request(server)
+      .post('/api/V1/sign-in')
+      .send(newAccount);
     return response;
   };
 
@@ -121,6 +133,22 @@ describe('Sign-In Route', () => {
       expect(signInResponse.status).toBe(200);
       expect(signInResponse.body).toEqual({
         auth: `Bearer token_fake`,
+      });
+    });
+
+    it('should return 400 if any required body parameter is missing', async () => {
+      const account = {
+        email: 'test@mail.com',
+        password: '12345678xX@',
+      };
+      const error = new MissingBodyParamsError(['email']);
+
+      const response = await signInRequestWithNoAccountEmail(account);
+
+      expect(response.status).toBe(400);
+      expect(response.body).toEqual({
+        message: error.message,
+        name: error.name,
       });
     });
 
