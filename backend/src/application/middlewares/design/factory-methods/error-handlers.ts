@@ -2,6 +2,7 @@
 import {
   ApplicationError,
   DatabaseError,
+  MissingHeaderParamsError,
   ServiceUnavailableError,
   TokenExpiredError,
   TokenSubjectDoesNotMatchError,
@@ -14,6 +15,7 @@ import {
   serviceUnavailableError,
   unauthorized,
   unknown,
+  badRequest,
 } from '../../utils';
 
 // It uses the factory-method design pattern
@@ -38,6 +40,9 @@ class ApplicationErrorHandlerProduct implements ErrorHandlerProduct {
     }
     if (error instanceof TokenSubjectDoesNotMatchError) {
       return forbidden(error);
+    }
+    if (error instanceof MissingHeaderParamsError) {
+      return badRequest(error);
     }
     return unknown(error);
   }

@@ -7,6 +7,9 @@ import {
   ServiceUnavailableError,
   UserAlreadyExistsError,
   UserDoNotExistsError,
+  MissingBodyParamsError,
+  MissingHeaderParamsError,
+  MissingUrlParamsError,
 } from '../../../errors';
 import { HttpResponse } from '../../../contracts/http';
 import {
@@ -72,6 +75,13 @@ class ApplicationErrorHandlerProduct implements ErrorHandlerProduct {
       error instanceof PasswordDoesNotMatchError
     ) {
       return forbidden(error);
+    }
+    if (
+      error instanceof MissingBodyParamsError ||
+      error instanceof MissingHeaderParamsError ||
+      error instanceof MissingUrlParamsError
+    ) {
+      return badRequest(error);
     }
     return unknown(error);
   }

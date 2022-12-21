@@ -24,7 +24,10 @@ import {
   InvalidPhoneError,
 } from '../../src/domain/errors';
 
-import { UserAlreadyExistsError } from '../../src/application/errors';
+import {
+  UserAlreadyExistsError,
+  MissingBodyParamsError,
+} from '../../src/application/errors';
 
 jest.mock('nodemailer');
 
@@ -58,6 +61,17 @@ describe('Sign-Up Route', () => {
 
   const signUpRequest = async (user: UserDTO): Promise<Response> => {
     const response = await request(server).post('/api/V1/sign-up').send(user);
+    return response;
+  };
+
+  const signUpRequestWithNoUserEmail = async (
+    user: UserDTO,
+  ): Promise<Response> => {
+    const newUser: any = user;
+    delete newUser.email;
+    const response = await request(server)
+      .post('/api/V1/sign-up')
+      .send(newUser);
     return response;
   };
 
@@ -102,6 +116,30 @@ describe('Sign-Up Route', () => {
 
         expect(response.status).toBe(204);
         expect(sendMailSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it('should return 400 if any required body parameter is missing', async () => {
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: 'UNITED_STATES_OF_AMERICA',
+          phone: faker.phone.phoneNumber('##########'),
+          document: new RandomSSN().value().toString(),
+        };
+
+        const error = new MissingBodyParamsError(['email']);
+
+        const response = await signUpRequestWithNoUserEmail(user);
+
+        await sleep(500);
+
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({
+          message: error.message,
+          name: error.name,
+        });
       });
 
       it('should return 400 with invalid email', async () => {
@@ -360,6 +398,30 @@ describe('Sign-Up Route', () => {
 
         expect(response.status).toBe(204);
         expect(sendMailSpy).toHaveBeenCalledTimes(1);
+      });
+
+      it('should return 400 if any required body parameter is missing', async () => {
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: 'BRAZILIAN',
+          phone: faker.phone.phoneNumber('##9########'),
+          document: cpf.generate(),
+        };
+
+        const error = new MissingBodyParamsError(['email']);
+
+        const response = await signUpRequestWithNoUserEmail(user);
+
+        await sleep(500);
+
+        expect(response.status).toBe(400);
+        expect(response.body).toEqual({
+          message: error.message,
+          name: error.name,
+        });
       });
 
       it('should return 400 with invalid email', async () => {
