@@ -1,17 +1,12 @@
 import faker from 'faker';
 import { RandomSSN } from 'ssn';
 
-import { LocalUserRepositoryFactory } from '../../../../src/infra/repositories';
-
 import { CheckUserPasswordAction } from '../../../../src/application/actions';
 import { CheckUserPasswordHandler } from '../../../../src/application/handlers';
 
 import { AccountDTO } from '../../../../src/domain/dtos';
 
-import {
-  HashProviderStub,
-  IDProviderStub,
-} from '../../../doubles/stubs/providers';
+import { HashProviderStub } from '../../../doubles/stubs/providers';
 
 describe('Check User Password', () => {
   it('should return "true" if password matches with hashed password', async () => {
