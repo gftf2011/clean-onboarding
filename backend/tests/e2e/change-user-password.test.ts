@@ -20,6 +20,8 @@ import { UserModel } from '../../src/domain/models';
 import { InvalidPasswordError } from '../../src/domain/errors';
 
 import {
+  MissingBodyParamsError,
+  MissingHeaderParamsError,
   TokenExpiredError,
   UserDoNotExistsError,
 } from '../../src/application/errors';
@@ -112,6 +114,27 @@ describe('Change-User-Password Route', () => {
     return response;
   };
 
+  const changePasswordRequestWithNoAuthorization = async (
+    password: string,
+  ): Promise<Response> => {
+    const response = await request(server)
+      .post('/api/V1/change-user-password')
+      .send({ password });
+
+    return response;
+  };
+
+  const changePasswordRequestWithNoPassword = async (
+    accessToken: string,
+  ): Promise<Response> => {
+    const response = await request(server)
+      .post('/api/V1/change-user-password')
+      .send({})
+      .set('Authorization', accessToken);
+
+    return response;
+  };
+
   beforeAll(async () => {
     await loader();
     await broker();
@@ -184,6 +207,94 @@ describe('Change-User-Password Route', () => {
           `${userWithNewPassword.email}$${userWithNewPassword.document}`,
         ),
       );
+    });
+
+    it('should return 400 if any required header parameter is missing - middleware', async () => {
+      const sendMailSpy = jest.fn();
+
+      (nodemailer.createTransport as any).mockReturnValue({
+        sendMail: sendMailSpy,
+      });
+
+      const user = {
+        email: 'test@mail.com',
+        password: '12345678xX@',
+        name: 'test',
+        lastname: 'test',
+        locale: 'UNITED_STATES_OF_AMERICA',
+        phone: faker.phone.phoneNumber('##########'),
+        document: new RandomSSN().value().toString(),
+      };
+      const userWithNewPassword = {
+        ...user,
+        password: '123456',
+      };
+
+      const signUpResponse = await signUpRequest(user);
+      const signInResponse = await signInRequest({
+        email: user.email,
+        password: user.password,
+      });
+
+      await sleep(500);
+
+      const changeUserPasswordResponse =
+        await changePasswordRequestWithNoAuthorization(
+          userWithNewPassword.password,
+        );
+
+      const error = new MissingHeaderParamsError(['authorization']);
+
+      expect(sendMailSpy).toHaveBeenCalledTimes(1);
+      expect(signUpResponse.status).toBe(204);
+      expect(signInResponse.status).toBe(200);
+      expect(signInResponse.body).toBeDefined();
+      expect(changeUserPasswordResponse.status).toBe(400);
+      expect(changeUserPasswordResponse.body).toEqual({
+        message: error.message,
+        name: error.name,
+      });
+    });
+
+    it('should return 400 if any required body parameter is missing', async () => {
+      const sendMailSpy = jest.fn();
+
+      (nodemailer.createTransport as any).mockReturnValue({
+        sendMail: sendMailSpy,
+      });
+
+      const user = {
+        email: 'test@mail.com',
+        password: '12345678xX@',
+        name: 'test',
+        lastname: 'test',
+        locale: 'UNITED_STATES_OF_AMERICA',
+        phone: faker.phone.phoneNumber('##########'),
+        document: new RandomSSN().value().toString(),
+      };
+
+      const signUpResponse = await signUpRequest(user);
+      const signInResponse = await signInRequest({
+        email: user.email,
+        password: user.password,
+      });
+
+      await sleep(500);
+
+      const changeUserPasswordResponse =
+        await changePasswordRequestWithNoPassword(signInResponse.body.auth);
+
+      const error = new MissingBodyParamsError(['password']);
+
+      expect(sendMailSpy).toHaveBeenCalledTimes(1);
+      expect(signUpResponse.status).toBe(204);
+      expect(signInResponse.status).toBe(200);
+      expect(signInResponse.body).toBeDefined();
+      expect(changeUserPasswordResponse.status).toBe(400);
+      expect(changeUserPasswordResponse.body).toEqual({
+        message: error.message,
+        name: error.name,
+      });
     });
 
     it('should return 400 when password is not strong enough', async () => {
