@@ -1,5 +1,6 @@
 import '../../src/main/bootstrap';
 
+import puppeteer, { Browser, Page } from 'puppeteer';
 import faker from 'faker';
 import request, { Response } from 'supertest';
 import { RandomSSN } from 'ssn';
@@ -29,11 +30,77 @@ import {
   MissingBodyParamsError,
 } from '../../src/application/errors';
 
-jest.mock('nodemailer');
-
 describe('Sign-Up Route', () => {
   let postgres: PostgresAdapter;
   let rabbitmq: RabbitmqAdapter;
+
+  let browser: Browser;
+  let page: Page;
+
+  const setupWebCrawler = async (): Promise<void> => {
+    browser = await puppeteer.launch();
+    page = await browser.newPage();
+    await page.setViewport({ width: 1200, height: 920 });
+  };
+
+  const webCrawlerGoToLoginPageAndDoLogin = async (
+    email: string,
+    password: string,
+  ): Promise<void> => {
+    await page.goto('https://ethereal.email/login', {
+      waitUntil: 'networkidle0',
+    });
+    const form = await page.$('form[action="/login"]');
+    const formGroups = await form?.$$('div.form-group');
+
+    if (formGroups && formGroups.length === 3) {
+      const emailInput = await formGroups[0].$('input[type="email"]');
+
+      await emailInput?.focus();
+      await emailInput?.type(email);
+
+      const passwordInput = await formGroups[1].$('input[type="password"]');
+
+      await passwordInput?.focus();
+      await passwordInput?.type(password);
+
+      const buttonSubmit = await formGroups[2].$('button[type="submit"]');
+
+      await buttonSubmit?.click();
+      await page.waitForNavigation();
+    }
+  };
+
+  const webCrawlerGoToHomePageAfterLoggedGoToMessages =
+    async (): Promise<void> => {
+      const lists = await page.$$('ul.navbar-nav');
+      const listItems = await lists[0]?.$$('li');
+      const anchor = await listItems[3]?.$('a.nav-link');
+
+      await anchor?.click();
+      await page.waitForNavigation();
+    };
+
+  const webCrawlerOpenSentEmail = async (): Promise<void> => {
+    const tableRows = await page.$$('tbody');
+    const tableData = await tableRows[0]?.$$('td');
+    const anchor = await tableData[1]?.$('a');
+
+    await anchor?.click();
+    await page.waitForNavigation();
+  };
+
+  const getSentEmail = async (): Promise<any> => {
+    const iFrame = await page.$('iframe');
+    const iFrameContent = await iFrame?.contentFrame();
+    const body = await iFrameContent?.$('body');
+
+    return (await body?.getProperty('innerHTML'))?.jsonValue();
+  };
+
+  const tearDownWebCrawler = async (): Promise<void> => {
+    await browser.close();
+  };
 
   const closeAllConnections = async (): Promise<void> => {
     await postgres.close();
@@ -93,10 +160,50 @@ describe('Sign-Up Route', () => {
         jest.resetAllMocks();
       });
 
+      it('should retrive email sent to user', async () => {
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: 'UNITED_STATES_OF_AMERICA',
+          phone: faker.phone.phoneNumber('##########'),
+          document: new RandomSSN().value().toString(),
+        };
+
+        await signUpRequest(user);
+
+        await sleep(500);
+
+        const email = String(process.env.ETHEREAL_EMAIL_USER);
+        const password = String(process.env.ETHEREAL_EMAIL_PASSWORD);
+
+        await setupWebCrawler();
+        await webCrawlerGoToLoginPageAndDoLogin(email, password);
+        await webCrawlerGoToHomePageAfterLoggedGoToMessages();
+        await webCrawlerOpenSentEmail();
+        const response = await getSentEmail();
+        await tearDownWebCrawler();
+
+        expect(response).toBe(
+          `\n` +
+            `  <h1>👋 Hello test test</h1>\n` +
+            `  <br>\n` +
+            `  <h2>Welcome to OUR community 😃</h2>\n` +
+            `  <br>\n` +
+            `  <br>\n` +
+            `  <h4>We hope we can exchange knowledge, learning from each other in every conversation !</h4>\n` +
+            `  <h4>Thank you, for doing your <strong>sign up</strong> into the platform. We hope you have a very nice experience !</h4>\n` +
+            `  <br>\n` +
+            `  <p>Best regards 👊</p>` +
+            `\n\n`,
+        );
+      });
+
       it('should return 204 with a valid user', async () => {
         const sendMailSpy = jest.fn();
 
-        (nodemailer.createTransport as any).mockReturnValue({
+        (jest.spyOn(nodemailer, 'createTransport') as any).mockReturnValue({
           sendMail: sendMailSpy,
         });
 
@@ -304,7 +411,7 @@ describe('Sign-Up Route', () => {
       it('should return 403 with a duplicated email', async () => {
         const sendMailSpy = jest.fn();
 
-        (nodemailer.createTransport as any).mockReturnValue({
+        (jest.spyOn(nodemailer, 'createTransport') as any).mockReturnValue({
           sendMail: sendMailSpy,
         });
 
@@ -337,6 +444,10 @@ describe('Sign-Up Route', () => {
       });
 
       afterEach(async () => {
+        /**
+         * Most important - restores module to original implementation
+         */
+        jest.restoreAllMocks();
         await cleanAllUsers();
       });
     });
@@ -350,10 +461,50 @@ describe('Sign-Up Route', () => {
         jest.resetAllMocks();
       });
 
+      it('should retrive email sent to user', async () => {
+        const user = {
+          email: 'test@mail.com',
+          password: '12345678xX@',
+          name: 'test',
+          lastname: 'test',
+          locale: 'BRAZILIAN',
+          phone: faker.phone.phoneNumber('##9########'),
+          document: cpf.generate(),
+        };
+
+        await signUpRequest(user);
+
+        await sleep(500);
+
+        const email = String(process.env.ETHEREAL_EMAIL_USER);
+        const password = String(process.env.ETHEREAL_EMAIL_PASSWORD);
+
+        await setupWebCrawler();
+        await webCrawlerGoToLoginPageAndDoLogin(email, password);
+        await webCrawlerGoToHomePageAfterLoggedGoToMessages();
+        await webCrawlerOpenSentEmail();
+        const response = await getSentEmail();
+        await tearDownWebCrawler();
+
+        expect(response).toBe(
+          `\n` +
+            `  <h1>👋 Hello test test</h1>\n` +
+            `  <br>\n` +
+            `  <h2>Welcome to OUR community 😃</h2>\n` +
+            `  <br>\n` +
+            `  <br>\n` +
+            `  <h4>We hope we can exchange knowledge, learning from each other in every conversation !</h4>\n` +
+            `  <h4>Thank you, for doing your <strong>sign up</strong> into the platform. We hope you have a very nice experience !</h4>\n` +
+            `  <br>\n` +
+            `  <p>Best regards 👊</p>` +
+            `\n\n`,
+        );
+      });
+
       it('should return 204 with a valid user', async () => {
         const sendMailSpy = jest.fn();
 
-        (nodemailer.createTransport as any).mockReturnValue({
+        (jest.spyOn(nodemailer, 'createTransport') as any).mockReturnValue({
           sendMail: sendMailSpy,
         });
 
@@ -378,7 +529,7 @@ describe('Sign-Up Route', () => {
       it('should return 204 with a valid user if locale is empty', async () => {
         const sendMailSpy = jest.fn();
 
-        (nodemailer.createTransport as any).mockReturnValue({
+        (jest.spyOn(nodemailer, 'createTransport') as any).mockReturnValue({
           sendMail: sendMailSpy,
         });
 
@@ -579,7 +730,7 @@ describe('Sign-Up Route', () => {
       it('should return 403 with a duplicated email', async () => {
         const sendMailSpy = jest.fn();
 
-        (nodemailer.createTransport as any).mockReturnValue({
+        (jest.spyOn(nodemailer, 'createTransport') as any).mockReturnValue({
           sendMail: sendMailSpy,
         });
 
@@ -612,16 +763,16 @@ describe('Sign-Up Route', () => {
       });
 
       afterEach(async () => {
+        /**
+         * Most important - restores module to original implementation
+         */
+        jest.restoreAllMocks();
         await cleanAllUsers();
       });
     });
   });
 
   afterAll(async () => {
-    /**
-     * Most important - restores module to original implementation
-     */
-    jest.restoreAllMocks();
     await closeAllConnections();
   });
 });
