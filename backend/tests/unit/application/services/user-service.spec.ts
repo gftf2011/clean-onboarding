@@ -4,9 +4,11 @@ import { RandomSSN } from 'ssn';
 import { UserModel } from '../../../../src/domain/models';
 
 import { UserService } from '../../../../src/application/services';
+import { FindUserByEmailAction } from '../../../../src/application/actions';
 
 import { CommandBusDummy } from '../../../doubles/dummies/bus/commands';
 import { QueryBusStub } from '../../../doubles/stubs/bus/queries';
+import { QueryBusSpy } from '../../../doubles/spies/bus/queries';
 
 describe('User Application Service', () => {
   describe('findByEmail - method', () => {
@@ -29,6 +31,23 @@ describe('User Application Service', () => {
       const response = await sut.findByEmail(user.email);
 
       expect(response).toEqual(user);
+    });
+
+    it('should check action', async () => {
+      const userEmail = faker.internet.email();
+      const action = new FindUserByEmailAction({
+        email: userEmail,
+      });
+
+      const queryBus = new QueryBusSpy();
+      const commandBus = new CommandBusDummy();
+
+      const sut = new UserService(commandBus, queryBus);
+
+      await sut.findByEmail(userEmail);
+
+      expect(queryBus.actions[0].operation).toBe(action.operation);
+      expect(queryBus.actions[0].data).toEqual(action.data);
     });
   });
 });

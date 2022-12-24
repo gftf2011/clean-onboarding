@@ -426,18 +426,13 @@ describe('Sign-Up Route', () => {
         };
         const error = new UserAlreadyExistsError();
 
-        const successResponse = await signUpRequest(user);
-
+        await signUpRequest(user);
         await sleep(500);
-
-        const failResponse = await signUpRequest(user);
-
-        expect(successResponse.status).toBe(204);
+        const response = await signUpRequest(user);
 
         expect(sendMailSpy).toHaveBeenCalledTimes(1);
-
-        expect(failResponse.status).toBe(403);
-        expect(failResponse.body).toEqual({
+        expect(response.status).toBe(403);
+        expect(response.body).toEqual({
           message: error.message,
           name: error.name,
         });
@@ -745,18 +740,13 @@ describe('Sign-Up Route', () => {
         };
         const error = new UserAlreadyExistsError();
 
-        const successResponse = await signUpRequest(user);
-
+        await signUpRequest(user);
         await sleep(500);
-
-        const failResponse = await signUpRequest(user);
-
-        expect(successResponse.status).toBe(204);
+        const response = await signUpRequest(user);
 
         expect(sendMailSpy).toHaveBeenCalledTimes(1);
-
-        expect(failResponse.status).toBe(403);
-        expect(failResponse.body).toEqual({
+        expect(response.status).toBe(403);
+        expect(response.body).toEqual({
           message: error.message,
           name: error.name,
         });
