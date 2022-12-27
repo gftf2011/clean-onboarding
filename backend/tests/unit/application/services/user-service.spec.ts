@@ -7,6 +7,7 @@ import { UserDTO } from '../../../../src/domain/dtos';
 
 import { UserService } from '../../../../src/application/services';
 import {
+  ChangeUserPasswordAction,
   CreateUserAction,
   FindUserAction,
   FindUserByEmailAction,
@@ -127,6 +128,44 @@ describe('User Application Service', () => {
       const sut = new UserService(commandBus, queryBus);
 
       await sut.save(user);
+
+      expect(commandBus.actions[0].operation).toBe(action.operation);
+      expect(commandBus.actions[0].data).toEqual(action.data);
+    });
+  });
+
+  describe('changeUserPassword - method', () => {
+    it('should check action', async () => {
+      const user: UserModel = {
+        id: faker.datatype.uuid(),
+        email: faker.internet.email(),
+        password: faker.internet.password(),
+        name: faker.name.firstName(),
+        lastname: faker.name.lastName(),
+        phone: faker.phone.phoneNumber('##########'),
+        document: new RandomSSN().value().toString(),
+        locale: 'UNITED_STATES_OF_AMERICA',
+      };
+      const action = new ChangeUserPasswordAction({
+        locale: user.locale as Nationalities,
+        user: {
+          id: user.id,
+          document: user.document,
+          email: user.email,
+          lastname: user.lastname,
+          name: user.name,
+          password: user.password,
+          phone: user.phone,
+        },
+      });
+      const queryBus = new QueryBusDummy();
+      const commandBus = new CommandBusSpy();
+
+      const sut = new UserService(commandBus, queryBus);
+
+      await sut.changeUserPassword(user.id, {
+        ...user,
+      });
 
       expect(commandBus.actions[0].operation).toBe(action.operation);
       expect(commandBus.actions[0].data).toEqual(action.data);
