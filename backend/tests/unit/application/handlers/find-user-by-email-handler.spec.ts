@@ -27,8 +27,8 @@ describe('Find User By Email Handler', () => {
     await repository.save(user);
 
     const action = new FindUserByEmailAction({ email: user.email });
-    const handler = new FindUserByEmailHandler(repository);
-    const response = await handler.handle(action);
+    const sut = new FindUserByEmailHandler(repository);
+    const response = await sut.handle(action);
 
     expect(response).toEqual(user);
   });
@@ -38,8 +38,8 @@ describe('Find User By Email Handler', () => {
     const repository = new LocalUserRepositoryFactory().createRepository();
 
     const action = new FindUserByEmailAction({ email: userEmail });
-    const handler = new FindUserByEmailHandler(repository);
-    const response = await handler.handle(action);
+    const sut = new FindUserByEmailHandler(repository);
+    const response = await sut.handle(action);
 
     expect(response).toBeUndefined();
   });
