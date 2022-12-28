@@ -5,20 +5,23 @@ import { LocalUserRepositoryFactory } from '../../../../src/infra/repositories';
 
 import { FindUserByEmailAction } from '../../../../src/application/actions';
 import { FindUserByEmailHandler } from '../../../../src/application/handlers';
-import { UserModel } from '../../../../src/domain/models';
 
 describe('Find User By Email Handler', () => {
-  it('should return user if user exists', async () => {
-    const user: UserModel = {
+  const makeUser = (): any => {
+    return {
       id: faker.datatype.uuid(),
-      email: faker.internet.email(),
-      password: faker.internet.password(),
-      name: faker.name.firstName(),
-      lastname: faker.name.lastName(),
-      locale: 'UNITED_STATES_OF_AMERICA',
-      phone: faker.phone.phoneNumber('##########'),
       document: new RandomSSN().value().toString(),
+      email: faker.internet.email().toLowerCase(),
+      lastname: faker.name.lastName().toLowerCase(),
+      name: faker.name.firstName().toLowerCase(),
+      password: faker.internet.password(),
+      phone: faker.phone.phoneNumber('##########'),
+      locale: 'UNITED_STATES_OF_AMERICA' as any,
     };
+  };
+
+  it('should return user if user exists', async () => {
+    const user = makeUser();
     const repository = new LocalUserRepositoryFactory().createRepository();
 
     await repository.save(user);
