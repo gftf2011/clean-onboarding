@@ -21,18 +21,23 @@ import { CommandBusSpy } from '../../../doubles/spies/bus/commands';
 import { QueryBusSpy } from '../../../doubles/spies/bus/queries';
 
 describe('User Application Service', () => {
+  const makeUser = (): any => {
+    return {
+      id: faker.datatype.uuid(),
+      email: faker.internet.email(),
+      password: faker.internet.password(),
+      name: faker.name.firstName(),
+      lastname: faker.name.lastName(),
+      phone: faker.phone.phoneNumber('##########'),
+      document: new RandomSSN().value().toString(),
+      locale: 'UNITED_STATES_OF_AMERICA' as any,
+    };
+  };
+
   describe('findByEmail - method', () => {
     it('should return an user as expected result', async () => {
-      const user: UserModel = {
-        id: faker.datatype.uuid(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        name: faker.name.firstName(),
-        lastname: faker.name.lastName(),
-        phone: faker.phone.phoneNumber('##########'),
-        document: new RandomSSN().value().toString(),
-        locale: 'UNITED_STATES_OF_AMERICA',
-      };
+      const user: UserModel = makeUser();
+
       const queryBus = new QueryBusStub(user);
       const commandBus = new CommandBusDummy();
 
@@ -63,16 +68,8 @@ describe('User Application Service', () => {
 
   describe('find - method', () => {
     it('should return an user as expected result', async () => {
-      const user: UserModel = {
-        id: faker.datatype.uuid(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        name: faker.name.firstName(),
-        lastname: faker.name.lastName(),
-        phone: faker.phone.phoneNumber('##########'),
-        document: new RandomSSN().value().toString(),
-        locale: 'UNITED_STATES_OF_AMERICA',
-      };
+      const user: UserModel = makeUser();
+
       const queryBus = new QueryBusStub(user);
       const commandBus = new CommandBusDummy();
 
@@ -103,15 +100,8 @@ describe('User Application Service', () => {
 
   describe('save - method', () => {
     it('should check action', async () => {
-      const user: UserDTO = {
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        name: faker.name.firstName(),
-        lastname: faker.name.lastName(),
-        phone: faker.phone.phoneNumber('##########'),
-        document: new RandomSSN().value().toString(),
-        locale: 'UNITED_STATES_OF_AMERICA',
-      };
+      const user: UserDTO = makeUser();
+
       const action = new CreateUserAction({
         locale: user.locale as Nationalities,
         user: {
@@ -137,16 +127,8 @@ describe('User Application Service', () => {
 
   describe('changeUserPassword - method', () => {
     it('should check action', async () => {
-      const user: UserModel = {
-        id: faker.datatype.uuid(),
-        email: faker.internet.email(),
-        password: faker.internet.password(),
-        name: faker.name.firstName(),
-        lastname: faker.name.lastName(),
-        phone: faker.phone.phoneNumber('##########'),
-        document: new RandomSSN().value().toString(),
-        locale: 'UNITED_STATES_OF_AMERICA',
-      };
+      const user: UserModel = makeUser();
+
       const action = new ChangeUserPasswordAction({
         locale: user.locale as Nationalities,
         user: {
