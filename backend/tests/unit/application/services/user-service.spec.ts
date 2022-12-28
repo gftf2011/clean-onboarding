@@ -2,8 +2,6 @@ import faker from 'faker';
 import { RandomSSN } from 'ssn';
 
 import { Nationalities } from '../../../../src/domain/contracts';
-import { UserModel } from '../../../../src/domain/models';
-import { UserDTO } from '../../../../src/domain/dtos';
 
 import { UserService } from '../../../../src/application/services';
 import {
@@ -36,7 +34,7 @@ describe('User Application Service', () => {
 
   describe('findByEmail - method', () => {
     it('should return an user as expected result', async () => {
-      const user: UserModel = makeUser();
+      const user = makeUser();
 
       const queryBus = new QueryBusStub(user);
       const commandBus = new CommandBusDummy();
@@ -68,7 +66,7 @@ describe('User Application Service', () => {
 
   describe('find - method', () => {
     it('should return an user as expected result', async () => {
-      const user: UserModel = makeUser();
+      const user = makeUser();
 
       const queryBus = new QueryBusStub(user);
       const commandBus = new CommandBusDummy();
@@ -100,7 +98,7 @@ describe('User Application Service', () => {
 
   describe('save - method', () => {
     it('should check action', async () => {
-      const user: UserDTO = makeUser();
+      const user = makeUser();
 
       const action = new CreateUserAction({
         locale: user.locale as Nationalities,
@@ -127,7 +125,7 @@ describe('User Application Service', () => {
 
   describe('changeUserPassword - method', () => {
     it('should check action', async () => {
-      const user: UserModel = makeUser();
+      const user = makeUser();
 
       const action = new ChangeUserPasswordAction({
         locale: user.locale as Nationalities,
