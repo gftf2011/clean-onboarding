@@ -11,6 +11,7 @@ import {
   CreateUserAction,
   FindUserAction,
   FindUserByEmailAction,
+  GetUserSessionAction,
 } from '../../../../src/application/actions';
 
 import { CommandBusDummy } from '../../../doubles/dummies/bus/commands';
@@ -169,6 +170,47 @@ describe('User Application Service', () => {
 
       expect(commandBus.actions[0].operation).toBe(action.operation);
       expect(commandBus.actions[0].data).toEqual(action.data);
+    });
+  });
+
+  describe('createSession - method', () => {
+    it('should return an user session as expected result', async () => {
+      const secret = faker.datatype.uuid();
+      const userId = faker.datatype.uuid();
+      const userEmail = faker.internet.email();
+
+      const session = faker.datatype.uuid();
+
+      const queryBus = new QueryBusStub(session);
+      const commandBus = new CommandBusDummy();
+
+      const sut = new UserService(commandBus, queryBus);
+
+      const response = await sut.createSession(userId, userEmail, secret);
+
+      expect(response).toEqual(session);
+    });
+
+    it('should check action', async () => {
+      const secret = faker.datatype.uuid();
+      const userId = faker.datatype.uuid();
+      const userEmail = faker.internet.email();
+
+      const action = new GetUserSessionAction({
+        secret,
+        email: userEmail,
+        id: userId,
+      });
+
+      const queryBus = new QueryBusSpy();
+      const commandBus = new CommandBusDummy();
+
+      const sut = new UserService(commandBus, queryBus);
+
+      await sut.createSession(userId, userEmail, secret);
+
+      expect(queryBus.actions[0].operation).toBe(action.operation);
+      expect(queryBus.actions[0].data).toEqual(action.data);
     });
   });
 });
