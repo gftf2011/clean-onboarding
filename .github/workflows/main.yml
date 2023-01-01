@@ -7,9 +7,6 @@ on:
   pull_request:
     branches: [ "main" ]
 
-env:
-  PROXY_TAG: proxy-$(uuidgen -t)
-
 jobs:
   build-proxy-prod:
     runs-on: ubuntu-latest
@@ -21,8 +18,8 @@ jobs:
     - name: Build the Proxy Docker image
       run: |
         mkdir -p images/nginx
-        docker build --file ./backend/docker/prod/images/nginx/Dockerfile --compress -t ${{ env.PROXY_TAG }} --build-arg listen_port=${{ secrets.PROXY_LISTEN_PORT }} --build-arg server_app=${{ secrets.SERVER_APP }} --build-arg server_port=${{ secrets.SERVER_PORT }} .
-        docker save --output ./images/nginx/proxy-image.tar ${{ env.PROXY_TAG }}
+        docker build --file ./backend/docker/prod/images/nginx/Dockerfile --compress -t proxy --build-arg listen_port=${{ secrets.PROXY_LISTEN_PORT }} --build-arg server_app=${{ secrets.SERVER_APP }} --build-arg server_port=${{ secrets.SERVER_PORT }} .
+        docker save --output ./images/nginx/proxy-image.tar proxy
     - name: Upload Proxy Docker image Artifact
       uses: actions/upload-artifact@v3
       with:
@@ -67,5 +64,6 @@ jobs:
         
       - name: Push Docker image to ECR
         run: |
-          docker tag ${{ env.PROXY_TAG }}:latest ${{ secrets.AWS_ECR_REPOSITORY_PROXY }}:prod
-          docker push ${{ secrets.AWS_ECR_REPOSITORY_PROXY }}:prod
+          docker tag proxy:latest ${{ secrets.AWS_ECR_REPOSITORY_PROXY }}:prod
+          docker tag proxy:$(uuidgen -t) ${{ secrets.AWS_ECR_REPOSITORY_PROXY }}:prod
+          docker push ${{ secrets.AWS_ECR_REPOSITORY_PROXY }}:prod --all-tags
