@@ -2,7 +2,7 @@ FROM nginxinc/nginx-unprivileged:1-alpine
 
 LABEL maintainer="Gabriel Ferrari Tarall Ferraz"
 
-COPY ./templates/prod/default.conf.tpl /etc/nginx/default.conf.tpl
+COPY ./backend/templates/prod/default.conf.tpl /etc/nginx/default.conf.tpl
 
 ARG listen_port
 ARG server_port
