@@ -9,7 +9,7 @@ on:
     
 env:
   PROXY_TAG: proxy
-  ECR_PROD_TAG: prod${{ github.run_number }}
+  ECR_PROD_TAG: prod_${{ github.run_number }}_${{ github.run_id }}
 
 jobs:
   build-proxy-prod:
