@@ -31,6 +31,8 @@ jobs:
     needs: [ build-proxy-prod ]
     runs-on: ubuntu-latest
     if: ${{ (github.event_name == 'push' || github.event_name == 'pull_request') && github.ref == 'refs/heads/main' }}
+    env:
+      TIMESTAMP: $(uuidgen -t)
     steps:
       - name: Add Python 3
         run: |
@@ -65,5 +67,5 @@ jobs:
         
       - name: Push Docker image to ECR
         run: |
-          docker tag proxy:latest ${{ secrets.AWS_ECR_REPOSITORY_PROXY }}:prod
-          docker push ${{ secrets.AWS_ECR_REPOSITORY_PROXY }}:prod
+          docker tag proxy:latest ${{ secrets.AWS_ECR_REPOSITORY_PROXY }}:prod-${{ env.TIMESTAMP }}
+          docker push ${{ secrets.AWS_ECR_REPOSITORY_PROXY }}:prod-${{ env.TIMESTAMP }}
