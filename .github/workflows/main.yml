@@ -19,7 +19,7 @@ jobs:
       run: |
         mkdir -p images/nginx
         echo $(pwd)
-        docker build --file backend/docker/prod/nginx/Dockerfile --compress -t proxy --build-arg listen_port=${{ secrets.PROXY_LISTEN_PORT }} --build-arg server_app=${{ secrets.SERVER_APP }} --build-arg server_port=${{ secrets.SERVER_PORT }} .
+        docker build --file backend/docker/prod/nginx --compress -t proxy --build-arg listen_port=${{ secrets.PROXY_LISTEN_PORT }} --build-arg server_app=${{ secrets.SERVER_APP }} --build-arg server_port=${{ secrets.SERVER_PORT }} .
         docker save --output ./images/nginx/proxy-image.tar proxy
     - name: Upload Proxy Docker image Artifact
       uses: actions/upload-artifact@v3
