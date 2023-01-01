@@ -8,8 +8,8 @@ on:
     branches: [ "main" ]
     
 env:
-  PROXY_TAG: proxy-${{ github.run_id }}-${{ github.run_attempt }}
-  ECR_PROD_TAG: prod${{ github.run_attempt }}
+  PROXY_TAG: proxy
+  ECR_PROD_TAG: prod${{ github.run_number }}
 
 jobs:
   build-proxy-prod:
