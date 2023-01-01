@@ -67,5 +67,5 @@ jobs:
         
       - name: Push Docker image to ECR
         run: |
-          docker tag proxy:latest ${{ secrets.AWS_ECR_REPOSITORY_PROXY }}:prod-${{ env.TIMESTAMP }}
-          docker push ${{ secrets.AWS_ECR_REPOSITORY_PROXY }}:prod-${{ env.TIMESTAMP }}
+          docker tag proxy:${{ env.TIMESTAMP }}-latest ${{ secrets.AWS_ECR_REPOSITORY_PROXY }}:prod
+          docker push ${{ secrets.AWS_ECR_REPOSITORY_PROXY }}:prod
