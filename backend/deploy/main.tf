@@ -8,6 +8,9 @@ terraform {
   }
 }
 
+# Configure the AWS Provider
 provider "aws" {
+  shared_credentials_file = "~/.aws/credentials"
   region = "us-east-1"
+  version = "~> 2.50.0"
 }
