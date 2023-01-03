@@ -30,7 +30,8 @@
     "pretest": "npm run build:test && npm run run:docker:test",
     "test": "jest --clearCache ; jest --colors --coverage --verbose --detectOpenHandles --config jest.config.js",
     "posttest": "npm run docker:clear",
-    "deploy:terraform": "docker-compose -f deploy/docker-compose.yml run --rm terraform init"
+    "terraform:init": "docker-compose -f deploy/docker-compose.yml run --rm terraform init",
+    "terraform:plan": "docker-compose -f deploy/docker-compose.yml run --rm terraform plan"
   },
   "keywords": [],
   "author": "Gabriel Ferrari Tarallo Ferraz",
