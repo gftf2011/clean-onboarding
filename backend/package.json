@@ -30,6 +30,8 @@
     "pretest": "npm run build:test && npm run run:docker:test",
     "test": "jest --clearCache ; jest --colors --coverage --verbose --detectOpenHandles --config jest.config.js",
     "posttest": "npm run docker:clear",
+    "test:unit": "jest --clearCache ; jest --colors --coverage --verbose --detectOpenHandles --config jest-unit.config.js",
+    "linting": "npx eslint --fix . --ext .ts",
     "terraform:init": "docker-compose -f deploy/docker-compose.yml run --rm terraform init",
     "terraform:validate": "docker-compose -f deploy/docker-compose.yml run --rm terraform validate",
     "terraform:plan": "docker-compose -f deploy/docker-compose.yml run --rm terraform plan",

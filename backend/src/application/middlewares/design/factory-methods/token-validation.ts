@@ -1,9 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import { IValidator } from '../../../contracts/validation';
-import {
-  TokenExpiredError,
-  TokenSubjectDoesNotMatchError,
-} from '../../../errors';
+import { TokenSubjectDoesNotMatchError } from '../../../errors';
 
 type JWTToken = {
   sub: string;

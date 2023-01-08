@@ -10,10 +10,26 @@ jobs:
   test-and-lint:
     runs-on: ubuntu-latest
     if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
+    strategy:
+      matrix: 
+        node: [ 18 ]
+    name: Test And Linting NodeJS v${{ matrix.node }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+
       - name: Linting
         run: |
-          echo "Linting"
+          npm run linting
+
+      - name: Unit Testing
+        run: |
+          npm run test:unit
 
   validate-terraform:
     runs-on: ubuntu-latest
