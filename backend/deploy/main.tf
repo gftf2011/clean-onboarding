@@ -16,4 +16,11 @@ provider "aws" {
 
 locals {
   prefix = "${var.prefix}-${terraform.workspace}"
+  comman_tags = {
+    Environment = terraform.workspace
+    Project = var.project
+    Owner = var.project_owner
+    Contact = var.email_contact
+    ManagedBy = "Terraform"
+  }
 }
