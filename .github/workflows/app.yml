@@ -23,6 +23,10 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
+      - name: Go to Backend
+        run: |
+          cd backend
+
       - name: Linting
         run: |
           npm run linting
