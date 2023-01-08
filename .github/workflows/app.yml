@@ -1,0 +1,87 @@
+name: Application API Build
+
+on:
+  push:
+    branches: [ "main", "release" ]
+  pull_request:
+    branches: [ "main", "release" ]
+
+jobs:
+  test-and-lint:
+    runs-on: ubuntu-latest
+    if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
+    steps:
+      - name: Linting
+        run: |
+          echo "Linting"
+
+  validate-terraform:
+    runs-on: ubuntu-latest
+    if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
+    steps:
+      - name: Validate Terraform
+        run: |
+          echo "Validate Terraform"
+
+  build-and-push:
+    runs-on: ubuntu-latest
+    needs: [ test-and-lint, validate-terraform ]
+    if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
+    steps:
+      - name: Build And Push
+        run: |
+          echo "Build And Push"
+
+  staging-plan:
+    runs-on: ubuntu-latest
+    needs: [ build-and-push ]
+    if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
+    steps:
+      - name: Staging Plan
+        run: |
+          echo "Staging Plan"
+
+  staging-apply:
+    runs-on: ubuntu-latest
+    needs: [ staging-plan ]
+    if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
+    steps:
+      - name: Staging Apply
+        run: |
+          echo "Staging Apply"
+
+  production-plan:
+    runs-on: ubuntu-latest
+    needs: [ build-and-push ]
+    if: ${{ github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Prouction Plan
+        run: |
+          echo "Production Plan"
+
+  production-apply:
+    runs-on: ubuntu-latest
+    needs: [ production-plan ]
+    if: ${{ github.ref == 'refs/heads/main' }}
+    steps:
+      - name: Production Apply
+        run: |
+          echo "Production Apply"
+
+  staging-destroy:
+    runs-on: ubuntu-latest
+      needs: [ staging-apply ]
+      if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
+      steps:
+        - name: Destroy Staging
+          run: |
+            echo "Run Terraform to destroy staging"
+
+  production-destroy:
+    runs-on: ubuntu-latest
+      needs: [ production-apply ]
+      if: ${{ github.ref == 'refs/heads/main' }}
+      steps:
+        - name: Destroy Production
+          run: |
+            echo "Run Terraform to destroy production"
