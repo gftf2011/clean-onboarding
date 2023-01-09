@@ -33,10 +33,10 @@ jobs:
           cd backend
           npm run linting
 
-      - name: Unit Testing
+      - name: Testing
         run: |
           cd backend
-          npm run test:unit
+          npm run test
 
   validate-terraform:
     runs-on: ubuntu-latest
