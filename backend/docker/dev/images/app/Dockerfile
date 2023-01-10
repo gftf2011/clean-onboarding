@@ -1,4 +1,4 @@
-FROM node:lts-alpine
+FROM node:16.16.0-alpine
 
 LABEL maintainer="Gabriel Ferrari Tarall Ferraz"
 
