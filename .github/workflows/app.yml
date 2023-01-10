@@ -151,7 +151,7 @@ jobs:
         run: |
           mkdir -p images/app
           docker build --file ./backend/docker/prod/images/app/Dockerfile --compress -t ${{ env.APP_TAG }} .
-          docker tag ${{ env.PROXY_TAG }}:latest ${{ secrets.AWS_ECR_REPOSITORY_APP }}:${{ env.ECR_APP_TAG }}
+          docker tag ${{ env.APP_TAG }}:latest ${{ secrets.AWS_ECR_REPOSITORY_APP }}:${{ env.ECR_APP_TAG }}
           docker push ${{ secrets.AWS_ECR_REPOSITORY_APP }}:${{ env.ECR_APP_TAG }}
 
   staging-plan:
