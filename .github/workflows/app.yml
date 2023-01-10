@@ -7,8 +7,41 @@ on:
     branches: [ "main", "release" ]
 
 jobs:
+  initialize-app:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix: 
+        node: [ 18 ]
+    name: Cache Node dependencies
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+          
+      - name: Install Packages
+        run: |
+          cd backend
+          npm i
+          
+      - name: Cache Node Modules
+        uses: actions/cache@v3.2.3
+        with:
+          path: ./backend/node_modules
+          key: node-modules-app-cache-key
+          
+      - name: Cache package-lock.json
+        uses: actions/cache@v3.2.3
+        with:
+          path: ./backend/package-lock.json
+          key: package-lock-app-cache-key
+
   test-and-lint:
     runs-on: ubuntu-latest
+    needs: initialize-app
     if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
     strategy:
       matrix: 
@@ -23,10 +56,17 @@ jobs:
         with:
           node-version: ${{ matrix.node }}
 
-      - name: Install Packages
-        run: |
-          cd backend
-          npm i
+      - name: Use Cached Node Modules
+        uses: actions/cache@v3.2.3
+        with:
+          path: ./backend/node_modules
+          key: node-modules-app-cache-key
+          
+      - name: Use Cached package-lock.json
+        uses: actions/cache@v3.2.3
+        with:
+          path: ./backend/package-lock.json
+          key: package-lock-app-cache-key
 
       - name: Linting
         run: |
@@ -40,6 +80,7 @@ jobs:
 
   validate-terraform:
     runs-on: ubuntu-latest
+    needs: initialize-app
     if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
     steps:
       - name: Checkout repository
@@ -61,9 +102,8 @@ jobs:
     needs: [ test-and-lint, validate-terraform ]
     if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
     steps:
-      - name: Build And Push
-        run: |
-          echo "Build And Push"
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
   staging-plan:
     runs-on: ubuntu-latest
