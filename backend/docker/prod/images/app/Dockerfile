@@ -4,7 +4,7 @@ LABEL maintainer="Gabriel Ferrari Tarall Ferraz"
 
 WORKDIR /app
 
-COPY . .
+COPY ./backend .
 
 RUN npm i --silent
 
