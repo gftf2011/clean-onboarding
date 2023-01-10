@@ -6,6 +6,8 @@ WORKDIR /app
 
 COPY . .
 
-RUN npm i --silent
+USER root
+
+RUN npm i
 
 CMD npm run start:dev
