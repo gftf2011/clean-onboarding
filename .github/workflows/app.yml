@@ -357,8 +357,8 @@ jobs:
 
   staging-plan:
     runs-on: ubuntu-latest
-    needs: [ build-and-push-app-api, build-and-push-app-queue ]
-    if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
+    needs: [ build-and-push-app-api-qa, build-and-push-app-queue-qa ]
+    if: ${{ github.ref == 'refs/heads/release' }}
     steps:
       - name: Staging Plan
         run: |
@@ -367,7 +367,7 @@ jobs:
   staging-apply:
     runs-on: ubuntu-latest
     needs: staging-plan
-    if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
+    if: ${{ github.ref == 'refs/heads/release' }}
     steps:
       - name: Staging Apply
         run: |
@@ -375,7 +375,7 @@ jobs:
 
   production-plan:
     runs-on: ubuntu-latest
-    needs: [ build-and-push-app-api, build-and-push-app-queue ]
+    needs: [ build-and-push-app-api-prod, build-and-push-app-queue-prod ]
     if: ${{ github.ref == 'refs/heads/main' }}
     steps:
       - name: Prouction Plan
@@ -394,7 +394,7 @@ jobs:
   staging-destroy:
     runs-on: ubuntu-latest
     needs: staging-apply
-    if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
+    if: ${{ github.ref == 'refs/heads/release' }}
     steps:
       - name: Destroy Staging
         run: |
