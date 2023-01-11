@@ -103,10 +103,11 @@ jobs:
           terraform init -backend=false
           terraform validate
 
-  build-and-push-app-api:
+  build-and-push-app-api-qa:
     runs-on: ubuntu-latest
+    environment: qa
     needs: [ test-and-lint, validate-terraform ]
-    if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
+    if: ${{ github.ref == 'refs/heads/release' }}
     strategy:
       matrix: 
         node: [ 18 ]
@@ -121,6 +122,15 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Create .env file
+        run: |
+          cd backend
+          touch .env
+          echo PORT=${{ secrets.APP_PORT }} >> .env
+          echo ORIGIN=${{ secrets.APP_ORIGIN }} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo JWT_EXPIRATION_TIME=${{ secrets.JWT_EXPIRATION_TIME }} >> .env
 
       - name: Setup node
         uses: actions/setup-node@v3
@@ -156,10 +166,11 @@ jobs:
           docker tag ${{ env.APP_TAG }}:latest ${{ secrets.AWS_ECR_REPOSITORY_APP }}:${{ env.ECR_APP_TAG }}
           docker push ${{ secrets.AWS_ECR_REPOSITORY_APP }}:${{ env.ECR_APP_TAG }}
 
-  build-and-push-app-queue:
+  build-and-push-app-queue-qa:
     runs-on: ubuntu-latest
+    environment: qa
     needs: [ test-and-lint, validate-terraform ]
-    if: ${{ (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/main') }}
+    if: ${{ github.ref == 'refs/heads/release' }}
     strategy:
       matrix: 
         node: [ 18 ]
@@ -174,6 +185,141 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v3
+
+      - name: Create .env file
+        run: |
+          cd backend
+          touch .env
+          echo PORT=${{ secrets.APP_PORT }} >> .env
+          echo ORIGIN=${{ secrets.APP_ORIGIN }} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo JWT_EXPIRATION_TIME=${{ secrets.JWT_EXPIRATION_TIME }} >> .env
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Use Cached Node Modules
+        uses: actions/cache@v3.2.3
+        with:
+          path: ./backend/node_modules
+          key: node-modules-app-cache-key
+          
+      - name: Use Cached package-lock.json
+        uses: actions/cache@v3.2.3
+        with:
+          path: ./backend/package-lock.json
+          key: package-lock-app-cache-key
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEVOPS_APP_QUEUE_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEVOPS_APP_QUEUE_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_APP_QUEUE_REGION }}
+
+      - name: AWS Login Docker
+        run: $(aws ecr get-login --no-include-email --region ${{ secrets.AWS_APP_QUEUE_REGION }})
+
+      - name: Build And Push the APP Queue Docker image
+        run: |
+          mkdir -p images/app-queue
+          docker build --file ./backend/docker/prod/images/app-queue/Dockerfile --compress -t ${{ env.APP_QUEUE_TAG }} .
+          docker tag ${{ env.APP_QUEUE_TAG }}:latest ${{ secrets.AWS_ECR_REPOSITORY_APP_QUEUE }}:${{ env.ECR_APP_QUEUE_TAG }}
+          docker push ${{ secrets.AWS_ECR_REPOSITORY_APP_QUEUE }}:${{ env.ECR_APP_QUEUE_TAG }}
+
+  build-and-push-app-api-prod:
+    runs-on: ubuntu-latest
+    environment: prod
+    needs: [ test-and-lint, validate-terraform ]
+    if: ${{ github.ref == 'refs/heads/main' }}
+    strategy:
+      matrix: 
+        node: [ 18 ]
+    steps:
+      - name: Add Python 3
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3
+     
+      - name: Install AWS CLI
+        run: pip3 install awscli==1.18.8
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create .env file
+        run: |
+          cd backend
+          touch .env
+          echo PORT=${{ secrets.APP_PORT }} >> .env
+          echo ORIGIN=${{ secrets.APP_ORIGIN }} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo JWT_EXPIRATION_TIME=${{ secrets.JWT_EXPIRATION_TIME }} >> .env
+
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+
+      - name: Use Cached Node Modules
+        uses: actions/cache@v3.2.3
+        with:
+          path: ./backend/node_modules
+          key: node-modules-app-cache-key
+          
+      - name: Use Cached package-lock.json
+        uses: actions/cache@v3.2.3
+        with:
+          path: ./backend/package-lock.json
+          key: package-lock-app-cache-key
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEVOPS_APP_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEVOPS_APP_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_APP_REGION }}
+
+      - name: AWS Login Docker
+        run: $(aws ecr get-login --no-include-email --region ${{ secrets.AWS_APP_REGION }})
+
+      - name: Build And Push the APP Docker image
+        run: |
+          mkdir -p images/app
+          docker build --file ./backend/docker/prod/images/app/Dockerfile --compress -t ${{ env.APP_TAG }} .
+          docker tag ${{ env.APP_TAG }}:latest ${{ secrets.AWS_ECR_REPOSITORY_APP }}:${{ env.ECR_APP_TAG }}
+          docker push ${{ secrets.AWS_ECR_REPOSITORY_APP }}:${{ env.ECR_APP_TAG }}
+
+  build-and-push-app-queue-prod:
+    runs-on: ubuntu-latest
+    environment: prod
+    needs: [ test-and-lint, validate-terraform ]
+    if: ${{ github.ref == 'refs/heads/main' }}
+    strategy:
+      matrix: 
+        node: [ 18 ]
+    steps:
+      - name: Add Python 3
+        run: |
+          sudo apt-get update
+          sudo apt-get install python3
+     
+      - name: Install AWS CLI
+        run: pip3 install awscli==1.18.8
+
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Create .env file
+        run: |
+          cd backend
+          touch .env
+          echo PORT=${{ secrets.APP_PORT }} >> .env
+          echo ORIGIN=${{ secrets.APP_ORIGIN }} >> .env
+          echo JWT_SECRET=${{ secrets.JWT_SECRET }} >> .env
+          echo JWT_EXPIRATION_TIME=${{ secrets.JWT_EXPIRATION_TIME }} >> .env
 
       - name: Setup node
         uses: actions/setup-node@v3
