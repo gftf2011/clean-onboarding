@@ -372,11 +372,6 @@ jobs:
       
       - name: Staging Plan
         run: |
-          credentials=${{ $(aws sts get-session --profile ${{ secrets.AWS_APP_API_USER_MANAGER }} --region ${{ secrets.AWS_APP_QUEUE_REGION }})) }}
-          export AWS_ACCESS_KEY_ID=${{ fromJson(credentials).Credentials.AccessKeyId }}
-          export AWS_SECRET_ACCESS_KEY=${{ fromJson(credentials).Credentials.SecretAccessKey }}
-          export AWS_SESSION_TOKEN=${{ fromJson(credentials).Credentials.SessionToken }}
-          export AWS_REGION=${{ secrets.AWS_APP_REGION }}
           cd backend/deploy
           export TF_VAR_ecr_app_image=${{ secrets.AWS_ECR_REPOSITORY_APP }}:${{ env.ECR_APP_TAG }}
           terraform init
