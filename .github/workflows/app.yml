@@ -360,6 +360,13 @@ jobs:
     needs: [ build-and-push-app-api-qa, build-and-push-app-queue-qa ]
     if: ${{ github.ref == 'refs/heads/release' }}
     steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEVOPS_APP_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEVOPS_APP_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_APP_REGION }}
+
       - name: Checkout repository
         uses: actions/checkout@v3
       
@@ -367,7 +374,6 @@ jobs:
         run: |
           cd backend/deploy
           export TF_VAR_ecr_app_image=${{ secrets.AWS_ECR_REPOSITORY_APP }}:${{ env.ECR_APP_TAG }}
-          export TF_VAR_ecr_app_queue_image=${{ secrets.AWS_ECR_REPOSITORY_APP_QUEUE }}:${{ env.ECR_APP_QUEUE_TAG }}
           terraform init
           terraform workspace select staging || terraform workspace new staging
           terraform plan
@@ -386,6 +392,13 @@ jobs:
     needs: [ build-and-push-app-api-prod, build-and-push-app-queue-prod ]
     if: ${{ github.ref == 'refs/heads/main' }}
     steps:
+      - name: Configure AWS credentials
+          uses: aws-actions/configure-aws-credentials@v1
+          with:
+            aws-access-key-id: ${{ secrets.DEVOPS_APP_AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.DEVOPS_APP_AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ secrets.AWS_APP_REGION }}
+  
       - name: Checkout repository
         uses: actions/checkout@v3
       
@@ -393,7 +406,6 @@ jobs:
         run: |
           cd backend/deploy
           export TF_VAR_ecr_app_image=${{ secrets.AWS_ECR_REPOSITORY_APP }}:${{ env.ECR_APP_TAG }}
-          export TF_VAR_ecr_app_queue_image=${{ secrets.AWS_ECR_REPOSITORY_APP_QUEUE }}:${{ env.ECR_APP_QUEUE_TAG }}
           terraform init
           terraform workspace select production || terraform workspace new production
           terraform plan
