@@ -355,7 +355,7 @@ jobs:
           docker tag ${{ env.APP_QUEUE_TAG }}:latest ${{ secrets.AWS_ECR_REPOSITORY_APP_QUEUE }}:${{ env.ECR_APP_QUEUE_TAG }}
           docker push ${{ secrets.AWS_ECR_REPOSITORY_APP_QUEUE }}:${{ env.ECR_APP_QUEUE_TAG }}
 
-  staging-plan-app-api:
+  staging-plan:
     runs-on: ubuntu-latest
     needs: [ build-and-push-app-api-qa, build-and-push-app-queue-qa ]
     if: ${{ github.ref == 'refs/heads/release' }}
