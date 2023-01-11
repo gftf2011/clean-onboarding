@@ -355,7 +355,7 @@ jobs:
           docker tag ${{ env.APP_QUEUE_TAG }}:latest ${{ secrets.AWS_ECR_REPOSITORY_APP_QUEUE }}:${{ env.ECR_APP_QUEUE_TAG }}
           docker push ${{ secrets.AWS_ECR_REPOSITORY_APP_QUEUE }}:${{ env.ECR_APP_QUEUE_TAG }}
 
-  staging-plan:
+  staging-plan-app-api:
     runs-on: ubuntu-latest
     needs: [ build-and-push-app-api-qa, build-and-push-app-queue-qa ]
     if: ${{ github.ref == 'refs/heads/release' }}
@@ -372,6 +372,11 @@ jobs:
       
       - name: Staging Plan
         run: |
+          credentials=${{ $(aws sts get-session --profile ${{ secrets.AWS_APP_API_USER_MANAGER }} --region ${{ secrets.AWS_APP_QUEUE_REGION }})) }}
+          export AWS_ACCESS_KEY_ID=${{ fromJson(credentials).Credentials.AccessKeyId }}
+          export AWS_SECRET_ACCESS_KEY=${{ fromJson(credentials).Credentials.SecretAccessKey }}
+          export AWS_SESSION_TOKEN=${{ fromJson(credentials).Credentials.SessionToken }}
+          export AWS_REGION=${{ secrets.AWS_APP_REGION }}
           cd backend/deploy
           export TF_VAR_ecr_app_image=${{ secrets.AWS_ECR_REPOSITORY_APP }}:${{ env.ECR_APP_TAG }}
           terraform init
@@ -392,13 +397,6 @@ jobs:
     needs: [ build-and-push-app-api-prod, build-and-push-app-queue-prod ]
     if: ${{ github.ref == 'refs/heads/main' }}
     steps:
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
-        with:
-          aws-access-key-id: ${{ secrets.DEVOPS_APP_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.DEVOPS_APP_AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_APP_REGION }}
-  
       - name: Checkout repository
         uses: actions/checkout@v3
       
@@ -406,6 +404,7 @@ jobs:
         run: |
           cd backend/deploy
           export TF_VAR_ecr_app_image=${{ secrets.AWS_ECR_REPOSITORY_APP }}:${{ env.ECR_APP_TAG }}
+          export TF_VAR_ecr_app_queue_image=${{ secrets.AWS_ECR_REPOSITORY_APP_QUEUE }}:${{ env.ECR_APP_QUEUE_TAG }}
           terraform init
           terraform workspace select production || terraform workspace new production
           terraform plan

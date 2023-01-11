@@ -1,4 +1,10 @@
 terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 4.0"
+    }
+  }
   backend "s3" {
     bucket = "clean-onboarding-api-devops-tf-state"
     key = "clean-onboarding-api-lock-state"
@@ -11,7 +17,6 @@ terraform {
 # Configure the AWS Provider
 provider "aws" {
   region = "us-east-1"
-  version = "~> 3.37"
 }
 
 locals {
