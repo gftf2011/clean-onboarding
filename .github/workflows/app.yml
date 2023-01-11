@@ -360,9 +360,17 @@ jobs:
     needs: [ build-and-push-app-api-qa, build-and-push-app-queue-qa ]
     if: ${{ github.ref == 'refs/heads/release' }}
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
       - name: Staging Plan
         run: |
-          echo "Staging Plan"
+          cd backend/deploy
+          export TF_VAR_ecr_app_image=${{ secrets.AWS_ECR_REPOSITORY_APP }}:${{ env.ECR_APP_TAG }}
+          export TF_VAR_ecr_app_queue_image=${{ secrets.AWS_ECR_REPOSITORY_APP_QUEUE }}:${{ env.ECR_APP_QUEUE_TAG }}
+          terraform init
+          terraform workspace select staging || terraform workspace new staging
+          terraform plan
 
   staging-apply:
     runs-on: ubuntu-latest
@@ -378,9 +386,17 @@ jobs:
     needs: [ build-and-push-app-api-prod, build-and-push-app-queue-prod ]
     if: ${{ github.ref == 'refs/heads/main' }}
     steps:
-      - name: Prouction Plan
+      - name: Checkout repository
+        uses: actions/checkout@v3
+      
+      - name: Production Plan
         run: |
-          echo "Production Plan"
+          cd backend/deploy
+          export TF_VAR_ecr_app_image=${{ secrets.AWS_ECR_REPOSITORY_APP }}:${{ env.ECR_APP_TAG }}
+          export TF_VAR_ecr_app_queue_image=${{ secrets.AWS_ECR_REPOSITORY_APP_QUEUE }}:${{ env.ECR_APP_QUEUE_TAG }}
+          terraform init
+          terraform workspace select production || terraform workspace new production
+          terraform plan
 
   production-apply:
     runs-on: ubuntu-latest
