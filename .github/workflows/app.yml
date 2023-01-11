@@ -392,6 +392,13 @@ jobs:
     needs: [ build-and-push-app-api-prod, build-and-push-app-queue-prod ]
     if: ${{ github.ref == 'refs/heads/main' }}
     steps:
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.DEVOPS_APP_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEVOPS_APP_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_APP_REGION }}
+
       - name: Checkout repository
         uses: actions/checkout@v3
       
